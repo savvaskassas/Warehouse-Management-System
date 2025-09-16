@@ -15,11 +15,24 @@ app.secret_key = os.getenv('SECRET_KEY', 'your-secret-key-change-in-production')
 from .models import user_model, unit_model, product_model, transaction_model
 from .database import db_instance
 
-@app.route('/')
+# Import and register blueprints
+from .admin_routes import admin_bp
+from .supervisor_routes import supervisor_bp
+from .employee_routes import employee_bp
+
+app.register_blueprint(admin_bp)
+app.register_blueprint(supervisor_bp)
+app.register_blueprint(employee_bp)
+
+@app.route('/', methods=['GET', 'POST'])
 def index():
     """Main landing page"""
     if 'user_id' in session:
         return redirect(url_for('dashboard'))
+    
+    if request.method == 'POST':
+        return login()
+    
     return render_template('login.html')
 
 @app.route('/login', methods=['GET', 'POST'])
@@ -82,13 +95,7 @@ def admin_dashboard():
         flash('Δεν έχετε δικαίωμα πρόσβασης!', 'error')
         return redirect(url_for('dashboard'))
     
-    # Get statistics
-    total_units = len(unit_model.get_all_units())
-    total_supervisors = len(user_model.get_all_supervisors())
-    
-    return render_template('admin/dashboard.html', 
-                         total_units=total_units,
-                         total_supervisors=total_supervisors)
+    return redirect(url_for('admin.dashboard'))
 
 @app.route('/supervisor')
 def supervisor_dashboard():
@@ -97,18 +104,7 @@ def supervisor_dashboard():
         flash('Δεν έχετε δικαίωμα πρόσβασης!', 'error')
         return redirect(url_for('dashboard'))
     
-    unit_id = session.get('unit_id')
-    if not unit_id and session.get('role') != 'admin':
-        flash('Δεν βρέθηκε αποθήκη!', 'error')
-        return redirect(url_for('dashboard'))
-    
-    # Get unit info and statistics
-    unit_info = unit_model.get_unit_by_id(unit_id) if unit_id else None
-    employees = user_model.get_users_by_unit(unit_id) if unit_id else []
-    
-    return render_template('supervisor/dashboard.html',
-                         unit_info=unit_info,
-                         employees=employees)
+    return redirect(url_for('supervisor.dashboard'))
 
 @app.route('/employee')
 def employee_dashboard():
@@ -117,16 +113,7 @@ def employee_dashboard():
         flash('Δεν έχετε δικαίωμα πρόσβασης!', 'error')
         return redirect(url_for('dashboard'))
     
-    unit_id = session.get('unit_id')
-    if not unit_id:
-        flash('Δεν βρέθηκε αποθήκη!', 'error')
-        return redirect(url_for('dashboard'))
-    
-    # Get recent products
-    products = product_model.get_products_by_unit(unit_id, limit=10)
-    
-    return render_template('employee/dashboard.html',
-                         products=products)
+    return redirect(url_for('employee.dashboard'))
 
 @app.route('/profile')
 def profile():

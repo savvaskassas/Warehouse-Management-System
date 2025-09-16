@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+
+{% block title %}Σύνδεση - Σύστημα Διαχείρισης Αποθηκών{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6 col-lg-4">
+        <div class="card shadow">
+            <div class="card-header bg-primary text-white text-center">
+                <h3><i class="fas fa-warehouse"></i> Σύνδεση</h3>
+            </div>
+            <div class="card-body">
+                <form method="POST">
+                    <div class="mb-3">
+                        <label for="username" class="form-label">Όνομα Χρήστη</label>
+                        <input type="text" class="form-control" id="username" name="username" required>
+                        <div class="form-text">Για admin: "admin"</div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="password" class="form-label">Κωδικός</label>
+                        <input type="password" class="form-control" id="password" name="password" required>
+                        <div class="form-text">Για admin: "admin123"</div>
+                    </div>
+                    
+                    <div class="mb-3" id="unit_id_group">
+                        <label for="unit_id" class="form-label">Κωδικός Αποθήκης</label>
+                        <input type="text" class="form-control" id="unit_id" name="unit_id">
+                        <div class="form-text">Μόνο για υπαλλήλους και προϊσταμένους</div>
+                    </div>
+                    
+                    <div class="d-grid">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-sign-in-alt"></i> Σύνδεση
+                        </button>
+                    </div>
+                </form>
+                
+                <div class="mt-4">
+                    <h6>Πληροφορίες Σύνδεσης:</h6>
+                    <small class="text-muted">
+                        <strong>Admin:</strong> username: admin, password: admin123<br>
+                        <strong>Υπάλληλοι/Προϊστάμενοι:</strong> Χρειάζονται κωδικό αποθήκης
+                    </small>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.getElementById('username').addEventListener('input', function() {
+    const unitGroup = document.getElementById('unit_id_group');
+    const unitInput = document.getElementById('unit_id');
+    
+    if (this.value.toLowerCase() === 'admin') {
+        unitGroup.style.display = 'none';
+        unitInput.required = false;
+    } else {
+        unitGroup.style.display = 'block';
+        unitInput.required = true;
+    }
+});
+</script>
+{% endblock %}

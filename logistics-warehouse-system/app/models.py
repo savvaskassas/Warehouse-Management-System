@@ -158,7 +158,7 @@ class ProductModel:
             upsert=True
         )
     
-    def get_products_by_unit(self, unit_id, search_params=None, sort_params=None):
+    def get_products_by_unit(self, unit_id, search_params=None, sort_params=None, limit=None):
         """Get products for specific unit with optional search and sort"""
         # Base query
         query = {"unit_id": unit_id}
@@ -189,6 +189,10 @@ class ProductModel:
         # Add sorting if provided
         if sort_params:
             cursor = cursor.sort(sort_params['field'], sort_params['order'])
+        
+        # Add limit if provided
+        if limit:
+            cursor = cursor.limit(limit)
         
         unit_products = list(cursor)
         

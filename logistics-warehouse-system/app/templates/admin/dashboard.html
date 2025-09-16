@@ -1,0 +1,173 @@
+{% extends "base.html" %}
+
+{% block title %}Admin Dashboard - Σύστημα Διαχείρισης Αποθηκών{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <h1><i class="fas fa-tachometer-alt"></i> Admin Dashboard</h1>
+        <p class="lead">Καλώς ήρθατε στο σύστημα διαχείρισης αποθηκών</p>
+    </div>
+</div>
+
+<!-- Statistics Cards -->
+<div class="row">
+    <div class="col-md-3">
+        <div class="stat-card">
+            <div class="d-flex justify-content-between">
+                <div>
+                    <div class="stat-number">{{ unit_count }}</div>
+                    <div>Αποθήκες</div>
+                </div>
+                <div class="align-self-center">
+                    <i class="fas fa-warehouse fa-2x"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-3">
+        <div class="stat-card">
+            <div class="d-flex justify-content-between">
+                <div>
+                    <div class="stat-number">{{ supervisors|length }}</div>
+                    <div>Προϊστάμενοι</div>
+                </div>
+                <div class="align-self-center">
+                    <i class="fas fa-user-tie fa-2x"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-3">
+        <div class="stat-card">
+            <div class="d-flex justify-content-between">
+                <div>
+                    <div class="stat-number">{{ total_employees }}</div>
+                    <div>Συνολικοί Υπάλληλοι</div>
+                </div>
+                <div class="align-self-center">
+                    <i class="fas fa-users fa-2x"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-3">
+        <div class="stat-card">
+            <div class="d-flex justify-content-between">
+                <div>
+                    <div class="stat-number">{{ "%.1f"|format(volume_usage_percentage) }}%</div>
+                    <div>Χρήση Χώρου</div>
+                </div>
+                <div class="align-self-center">
+                    <i class="fas fa-chart-pie fa-2x"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Profit Card -->
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h5><i class="fas fa-euro-sign"></i> Συνολικά Κέρδη/Ζημία Εταιρείας</h5>
+            </div>
+            <div class="card-body text-center">
+                <h2 class="{{ 'text-success' if total_profit >= 0 else 'text-danger' }}">
+                    {{ "%.2f"|format(total_profit) }} €
+                </h2>
+                <p class="text-muted">{{ 'Κέρδος' if total_profit >= 0 else 'Ζημία' }}</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Quick Actions -->
+<div class="row mt-4">
+    <div class="col-12">
+        <h3>Γρήγορες Ενέργειες</h3>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-4">
+        <div class="card h-100">
+            <div class="card-body text-center">
+                <i class="fas fa-warehouse fa-3x text-primary mb-3"></i>
+                <h5 class="card-title">Διαχείριση Αποθηκών</h5>
+                <p class="card-text">Δημιουργία, προβολή και διαγραφή αποθηκών</p>
+                <a href="{{ url_for('admin.view_units') }}" class="btn btn-primary">Προβολή Αποθηκών</a>
+                <a href="{{ url_for('admin.create_unit') }}" class="btn btn-outline-primary">Νέα Αποθήκη</a>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-4">
+        <div class="card h-100">
+            <div class="card-body text-center">
+                <i class="fas fa-box fa-3x text-success mb-3"></i>
+                <h5 class="card-title">Διαχείριση Προϊόντων</h5>
+                <p class="card-text">Δημιουργία και διαχείριση προϊόντων</p>
+                <a href="{{ url_for('admin.view_products') }}" class="btn btn-success">Προβολή Προϊόντων</a>
+                <a href="{{ url_for('admin.create_product') }}" class="btn btn-outline-success">Νέο Προϊόν</a>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-4">
+        <div class="card h-100">
+            <div class="card-body text-center">
+                <i class="fas fa-user-tie fa-3x text-info mb-3"></i>
+                <h5 class="card-title">Διαχείριση Προϊσταμένων</h5>
+                <p class="card-text">Δημιουργία και διαχείριση προϊσταμένων</p>
+                <a href="{{ url_for('admin.view_supervisors') }}" class="btn btn-info">Προβολή Προϊσταμένων</a>
+                <a href="{{ url_for('admin.create_supervisor') }}" class="btn btn-outline-info">Νέος Προϊστάμενος</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Recent Units -->
+{% if units %}
+<div class="row mt-4">
+    <div class="col-12">
+        <h3>Πρόσφατες Αποθήκες</h3>
+        <div class="table-responsive">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Κωδικός</th>
+                        <th>Όνομα</th>
+                        <th>Όγκος</th>
+                        <th>Κέρδη</th>
+                        <th>Ενέργειες</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for unit in units[:5] %}
+                    <tr>
+                        <td><strong>{{ unit.unit_id }}</strong></td>
+                        <td>{{ unit.unit_name }}</td>
+                        <td>{{ unit.unit_volume }} m³</td>
+                        <td class="{{ 'text-success' if unit.get('total_profit', 0) >= 0 else 'text-danger' }}">
+                            {{ "%.2f"|format(unit.get('total_profit', 0)) }} €
+                        </td>
+                        <td>
+                            <a href="{{ url_for('admin.access_unit_as_supervisor', unit_id=unit.unit_id) }}" 
+                               class="btn btn-sm btn-outline-primary">
+                                <i class="fas fa-eye"></i> Προβολή
+                            </a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endif %}
+{% endblock %}
