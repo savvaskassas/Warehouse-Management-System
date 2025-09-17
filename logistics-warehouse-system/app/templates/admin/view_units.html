@@ -1,0 +1,95 @@
+{% extends "base.html" %}
+
+{% block title %}Διαχείριση Αποθηκών{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2><i class="fas fa-warehouse"></i> Διαχείριση Αποθηκών</h2>
+        <a href="{{ url_for('admin.create_unit') }}" class="btn btn-primary">
+            <i class="fas fa-plus"></i> Νέα Αποθήκη
+        </a>
+    </div>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <div class="alert alert-{{ 'danger' if category == 'error' else 'success' }} alert-dismissible fade show" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+
+    {% if units %}
+        <div class="card">
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-striped table-hover">
+                        <thead class="table-dark">
+                            <tr>
+                                <th>ID</th>
+                                <th>Όνομα</th>
+                                <th>Όγκος (m³)</th>
+                                <th>Ημερομηνία Δημιουργίας</th>
+                                <th>Ενέργειες</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for unit in units %}
+                            <tr>
+                                <td><span class="badge bg-primary">{{ unit.unit_id }}</span></td>
+                                <td><strong>{{ unit.unit_name }}</strong></td>
+                                <td>{{ "{:,}".format(unit.unit_volume) }}</td>
+                                <td>{{ unit.created_at.strftime('%d/%m/%Y %H:%M') if unit.created_at else '-' }}</td>
+                                <td>
+                                    <div class="btn-group" role="group">
+                                        <button type="button" class="btn btn-sm btn-outline-info" title="Προβολή Στοιχείων">
+                                            <i class="fas fa-eye"></i>
+                                        </button>
+                                        <button type="button" class="btn btn-sm btn-outline-warning" title="Επεξεργασία">
+                                            <i class="fas fa-edit"></i>
+                                        </button>
+                                        <button type="button" class="btn btn-sm btn-outline-danger" title="Διαγραφή" 
+                                                onclick="confirmDelete('{{ unit.unit_id }}', '{{ unit.unit_name }}')">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    {% else %}
+        <div class="card">
+            <div class="card-body text-center">
+                <i class="fas fa-warehouse fa-3x text-muted mb-3"></i>
+                <h4 class="text-muted">Δεν υπάρχουν αποθήκες</h4>
+                <p class="text-muted">Δημιουργήστε την πρώτη σας αποθήκη για να ξεκινήσετε!</p>
+                <a href="{{ url_for('admin.create_unit') }}" class="btn btn-primary">
+                    <i class="fas fa-plus"></i> Δημιουργία Πρώτης Αποθήκης
+                </a>
+            </div>
+        </div>
+    {% endif %}
+
+    <div class="mt-4">
+        <a href="{{ url_for('admin.dashboard') }}" class="btn btn-secondary">
+            <i class="fas fa-arrow-left"></i> Επιστροφή στο Dashboard
+        </a>
+    </div>
+</div>
+
+<script>
+function confirmDelete(unitId, unitName) {
+    if (confirm(`Είστε σίγουροι ότι θέλετε να διαγράψετε την αποθήκη "${unitName}"?`)) {
+        // Implement delete functionality here
+        alert('Η λειτουργία διαγραφής θα υλοποιηθεί σύντομα');
+    }
+}
+</script>
+{% endblock %}

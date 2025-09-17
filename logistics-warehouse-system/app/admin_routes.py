@@ -275,6 +275,126 @@ def company_statistics():
     check = require_admin()
     if check: return check
     
-    # This route will show detailed statistics
-    # Implementation will be added when we create the templates
-    return render_template('admin/statistics.html')
+    # Get all units and calculate comprehensive statistics
+    units = unit_model.get_all_units()
+    supervisors = user_model.get_all_supervisors()
+    
+    # Initialize statistics containers
+    total_profit = 0
+    total_volume_used = 0
+    total_volume_capacity = 0
+    total_employees = 0
+    unit_profits = []
+    product_categories = {}
+    employee_performance = []
+    monthly_sales = {}
+    
+    for unit in units:
+        # Get unit products for calculations
+        unit_products = product_model.get_products_by_unit(unit['unit_id'])
+        
+        # Calculate unit profit
+        unit_profit = sum(p.get('product_unit_gain', 0) for p in unit_products)
+        total_profit += unit_profit
+        
+        # Store unit profit data
+        unit_profits.append({
+            'unit_name': unit['unit_name'],
+            'unit_id': unit['unit_id'],
+            'profit': unit_profit
+        })
+        
+        # Calculate volume usage
+        unit_volume_used = 0
+        for p in unit_products:
+            if 'product_volume' in p and 'product_quantity' in p:
+                unit_volume_used += p['product_volume'] * p['product_quantity']
+            
+            # Collect product categories
+            category = p.get('product_category', 'Άλλα')
+            if category in product_categories:
+                product_categories[category] += p.get('product_quantity', 0)
+            else:
+                product_categories[category] = p.get('product_quantity', 0)
+        
+        total_volume_used += unit_volume_used
+        total_volume_capacity += unit['unit_volume']
+        
+        # Count employees in this unit
+        unit_employees = user_model.get_users_by_unit(unit['unit_id'])
+        employees_only = [emp for emp in unit_employees if emp['role'] == 'employee']
+        total_employees += len(employees_only)
+        
+        # Get employee performance (sales data from transactions)
+        for employee in employees_only:
+            # Get transactions performed by this employee
+            employee_transactions = list(db_instance.db.transactions.find({
+                "unit_id": unit['unit_id'],
+                "performed_by": employee['username'],
+                "transaction_type": "sale"
+            }))
+            
+            total_sales = sum(t.get('total_amount', 0) for t in employee_transactions)
+            total_quantity = sum(t.get('quantity', 0) for t in employee_transactions)
+            
+            if total_sales > 0:  # Only include employees with sales
+                employee_performance.append({
+                    'name': f"{employee['name']} {employee['surname']}",
+                    'unit_name': unit['unit_name'],
+                    'total_sales': total_sales,
+                    'total_quantity': total_quantity,
+                    'transactions_count': len(employee_transactions)
+                })
+    
+    # Add supervisors to employee count
+    total_employees += len(supervisors)
+    
+    # Calculate volume usage percentage
+    volume_usage_percentage = (total_volume_used / total_volume_capacity * 100) if total_volume_capacity > 0 else 0
+    
+    # Get monthly sales data for charts
+    from datetime import datetime, timedelta
+    import calendar
+    
+    # Get transactions from last 12 months
+    end_date = datetime.utcnow()
+    start_date = end_date - timedelta(days=365)
+    
+    transactions = list(db_instance.db.transactions.find({
+        "timestamp": {"$gte": start_date, "$lte": end_date},
+        "transaction_type": "sale"
+    }))
+    
+    for transaction in transactions:
+        month_key = transaction['timestamp'].strftime('%Y-%m')
+        month_name = calendar.month_name[transaction['timestamp'].month] + ' ' + str(transaction['timestamp'].year)
+        
+        if month_key in monthly_sales:
+            monthly_sales[month_key]['amount'] += transaction.get('total_amount', 0)
+            monthly_sales[month_key]['quantity'] += transaction.get('quantity', 0)
+        else:
+            monthly_sales[month_key] = {
+                'month_name': month_name,
+                'amount': transaction.get('total_amount', 0),
+                'quantity': transaction.get('quantity', 0)
+            }
+    
+    # Sort employee performance by sales
+    employee_performance.sort(key=lambda x: x['total_sales'], reverse=True)
+    
+    # Sort unit profits
+    unit_profits.sort(key=lambda x: x['profit'], reverse=True)
+    
+    # Sort monthly sales
+    monthly_sales_list = sorted(monthly_sales.items(), key=lambda x: x[0])
+    
+    return render_template('admin/statistics.html',
+                         units=units,
+                         total_profit=total_profit,
+                         volume_usage_percentage=volume_usage_percentage,
+                         total_employees=total_employees,
+                         unit_profits=unit_profits,
+                         product_categories=product_categories,
+                         employee_performance=employee_performance[:10],  # Top 10
+                         monthly_sales=monthly_sales_list,
+                         unit_count=len(units))

@@ -1,0 +1,101 @@
+{% extends "base.html" %}
+
+{% block title %}Διαχείριση Προϊόντων{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2><i class="fas fa-boxes"></i> Διαχείριση Προϊόντων</h2>
+        <a href="{{ url_for('admin.create_product') }}" class="btn btn-primary">
+            <i class="fas fa-plus"></i> Νέο Προϊόν
+        </a>
+    </div>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <div class="alert alert-{{ 'danger' if category == 'error' else 'success' }} alert-dismissible fade show" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+
+    {% if products %}
+        <div class="card">
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-striped table-hover">
+                        <thead class="table-dark">
+                            <tr>
+                                <th>Κωδικός</th>
+                                <th>Όνομα</th>
+                                <th>Περιγραφή</th>
+                                <th>Όγκος ανά τεμάχιο (m³)</th>
+                                <th>Τιμή Αγοράς (€)</th>
+                                <th>Τιμή Πώλησης (€)</th>
+                                <th>Ημερομηνία Δημιουργίας</th>
+                                <th>Ενέργειες</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for product in products %}
+                            <tr>
+                                <td><span class="badge bg-primary">{{ product._id }}</span></td>
+                                <td><strong>{{ product.name }}</strong></td>
+                                <td>{{ product.description[:50] + '...' if product.description and product.description|length > 50 else product.description or '-' }}</td>
+                                <td>{{ "{:.3f}".format(product.volume_per_unit) }}</td>
+                                <td>{{ "{:.2f}".format(product.purchase_price) }}</td>
+                                <td>{{ "{:.2f}".format(product.selling_price) }}</td>
+                                <td>{{ product.created_at.strftime('%d/%m/%Y %H:%M') if product.created_at else '-' }}</td>
+                                <td>
+                                    <div class="btn-group" role="group">
+                                        <button type="button" class="btn btn-sm btn-outline-info" title="Προβολή Στοιχείων">
+                                            <i class="fas fa-eye"></i>
+                                        </button>
+                                        <button type="button" class="btn btn-sm btn-outline-warning" title="Επεξεργασία">
+                                            <i class="fas fa-edit"></i>
+                                        </button>
+                                        <button type="button" class="btn btn-sm btn-outline-danger" title="Διαγραφή" 
+                                                onclick="confirmDelete('{{ product._id }}', '{{ product.name }}')">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    {% else %}
+        <div class="card">
+            <div class="card-body text-center">
+                <i class="fas fa-boxes fa-3x text-muted mb-3"></i>
+                <h4 class="text-muted">Δεν υπάρχουν προϊόντα</h4>
+                <p class="text-muted">Δημιουργήστε το πρώτο σας προϊόν για να ξεκινήσετε!</p>
+                <a href="{{ url_for('admin.create_product') }}" class="btn btn-primary">
+                    <i class="fas fa-plus"></i> Δημιουργία Πρώτου Προϊόντος
+                </a>
+            </div>
+        </div>
+    {% endif %}
+
+    <div class="mt-4">
+        <a href="{{ url_for('admin.dashboard') }}" class="btn btn-secondary">
+            <i class="fas fa-arrow-left"></i> Επιστροφή στο Dashboard
+        </a>
+    </div>
+</div>
+
+<script>
+function confirmDelete(productId, productName) {
+    if (confirm(`Είστε σίγουροι ότι θέλετε να διαγράψετε το προϊόν "${productName}"?`)) {
+        // Implement delete functionality here
+        alert('Η λειτουργία διαγραφής θα υλοποιηθεί σύντομα');
+    }
+}
+</script>
+{% endblock %}

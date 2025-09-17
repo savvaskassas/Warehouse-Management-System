@@ -188,7 +188,10 @@ def unit_statistics():
     
     return render_template('supervisor/statistics.html',
                          unit_info=unit_info,
+                         products=unit_products,
+                         employees=employees,
                          total_profit=total_profit,
+                         total_volume_used=total_volume_used,
                          volume_usage_percentage=volume_usage_percentage,
                          employee_count=len(employees),
                          recent_transactions=recent_transactions,
