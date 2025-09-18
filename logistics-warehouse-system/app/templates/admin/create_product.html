@@ -24,41 +24,81 @@
 
                     <form method="POST">
                         <div class="mb-3">
-                            <label for="name" class="form-label">Όνομα Προϊόντος</label>
-                            <input type="text" class="form-control" id="name" name="name" required>
+                            <label for="product_name" class="form-label">Όνομα Προϊόντος *</label>
+                            <input type="text" class="form-control" id="product_name" name="product_name" required>
                             <div class="form-text">Εισάγετε το όνομα του προϊόντος</div>
-                        </div>
-                        
-                        <div class="mb-3">
-                            <label for="description" class="form-label">Περιγραφή</label>
-                            <textarea class="form-control" id="description" name="description" rows="3"></textarea>
-                            <div class="form-text">Προαιρετική περιγραφή του προϊόντος</div>
                         </div>
 
                         <div class="row">
                             <div class="col-md-6">
                                 <div class="mb-3">
-                                    <label for="volume_per_unit" class="form-label">Όγκος ανά τεμάχιο (m³)</label>
-                                    <input type="number" class="form-control" id="volume_per_unit" name="volume_per_unit" 
-                                           step="0.001" min="0.001" required>
-                                    <div class="form-text">Όγκος που καταλαμβάνει κάθε τεμάχιο</div>
+                                    <label for="product_weight" class="form-label">Βάρος (kg) *</label>
+                                    <input type="number" class="form-control" id="product_weight" name="product_weight" 
+                                           step="0.01" min="0" required>
+                                    <div class="form-text">Βάρος του προϊόντος σε κιλά</div>
                                 </div>
                             </div>
                             <div class="col-md-6">
                                 <div class="mb-3">
-                                    <label for="purchase_price" class="form-label">Τιμή Αγοράς (€)</label>
-                                    <input type="number" class="form-control" id="purchase_price" name="purchase_price" 
-                                           step="0.01" min="0" required>
-                                    <div class="form-text">Κόστος αγοράς του προϊόντος</div>
+                                    <label for="product_volume" class="form-label">Όγκος (m³) *</label>
+                                    <input type="number" class="form-control" id="product_volume" name="product_volume" 
+                                           step="0.001" min="0.001" required>
+                                    <div class="form-text">Όγκος που καταλαμβάνει το προϊόν</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="product_category" class="form-label">Κατηγορία *</label>
+                                    <select class="form-select" id="product_category" name="product_category" required>
+                                        <option value="">Επιλέξτε κατηγορία...</option>
+                                        <option value="Ηλεκτρονικά">Ηλεκτρονικά</option>
+                                        <option value="Ρουχισμός">Ρουχισμός</option>
+                                        <option value="Τρόφιμα">Τρόφιμα</option>
+                                        <option value="Βιβλία">Βιβλία</option>
+                                        <option value="Σπίτι & Κήπος">Σπίτι & Κήπος</option>
+                                        <option value="Αθλητικά">Αθλητικά</option>
+                                        <option value="Παιχνίδια">Παιχνίδια</option>
+                                        <option value="Άλλα">Άλλα</option>
+                                    </select>
+                                    <div class="form-text">Κατηγορία του προϊόντος</div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="product_manufacturer" class="form-label">Κατασκευαστής *</label>
+                                    <input type="text" class="form-control" id="product_manufacturer" name="product_manufacturer" required>
+                                    <div class="form-text">Εταιρεία κατασκευής</div>
                                 </div>
                             </div>
                         </div>
 
                         <div class="mb-3">
-                            <label for="selling_price" class="form-label">Τιμή Πώλησης (€)</label>
-                            <input type="number" class="form-control" id="selling_price" name="selling_price" 
-                                   step="0.01" min="0" required>
-                            <div class="form-text">Τιμή πώλησης προς τους πελάτες</div>
+                            <label for="initial_quantity" class="form-label">Αρχική Ποσότητα *</label>
+                            <input type="number" class="form-control" id="initial_quantity" name="initial_quantity" 
+                                   min="0" value="0" required>
+                            <div class="form-text">Ποσότητα προϊόντος που θα προστεθεί στην αποθήκη κατά τη δημιουργία</div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="product_purchase_price" class="form-label">Τιμή Αγοράς (€) *</label>
+                                    <input type="number" class="form-control" id="product_purchase_price" name="product_purchase_price" 
+                                           step="0.01" min="0" required>
+                                    <div class="form-text">Κόστος αγοράς του προϊόντος</div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="product_selling_price" class="form-label">Τιμή Πώλησης (€) *</label>
+                                    <input type="number" class="form-control" id="product_selling_price" name="product_selling_price" 
+                                           step="0.01" min="0" required>
+                                    <div class="form-text">Τιμή πώλησης προς τους πελάτες</div>
+                                </div>
+                            </div>
                         </div>
 
                         <div class="d-grid gap-2 d-md-flex justify-content-md-end">

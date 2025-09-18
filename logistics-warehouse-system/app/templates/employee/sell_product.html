@@ -1,0 +1,171 @@
+{% extends "base.html" %}
+
+{% block title %}Πώληση {{ product.product_name }} - Σύστημα Διαχείρισης Αποθηκών{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <h1><i class="fas fa-cash-register"></i> Πώληση Προϊόντος</h1>
+        <p class="lead">{{ product.product_name }} ({{ product.product_id }})</p>
+    </div>
+</div>
+
+<div class="row mb-3">
+    <div class="col-12">
+        <a href="{{ url_for('employee.view_product_details', product_id=product.product_id) }}" class="btn btn-secondary">
+            <i class="fas fa-arrow-left"></i> Επιστροφή στο Προϊόν
+        </a>
+    </div>
+</div>
+
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header">
+                <h5><i class="fas fa-cash-register"></i> Στοιχεία Πώλησης</h5>
+            </div>
+            <div class="card-body">
+                <!-- Product Summary -->
+                <div class="alert alert-info">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <strong>Προϊόν:</strong> {{ product.product_name }}<br>
+                            <strong>Κωδικός:</strong> {{ product.product_id }}<br>
+                            <strong>Κατηγορία:</strong> {{ product.product_category }}
+                        </div>
+                        <div class="col-md-6">
+                            <strong>Διαθέσιμη Ποσότητα:</strong> 
+                            <span class="badge bg-success fs-6">{{ product.product_quantity }} τεμάχια</span><br>
+                            <strong>Τιμή Πώλησης:</strong> 
+                            <span class="badge bg-primary fs-6">{{ "%.2f"|format(product.product_selling_price) }}€</span>
+                        </div>
+                    </div>
+                </div>
+
+                <form method="POST">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="quantity" class="form-label">Ποσότητα προς Πώληση *</label>
+                                <input type="number" class="form-control" id="quantity" name="quantity" 
+                                       min="1" max="{{ product.product_quantity }}" 
+                                       value="{{ request.form.quantity if request.form.quantity else '1' }}" 
+                                       required onchange="calculateTotal()">
+                                <div class="form-text">Μέγιστη ποσότητα: {{ product.product_quantity }} τεμάχια</div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="selling_price" class="form-label">Τιμή Πώλησης ανά Τεμάχιο</label>
+                                <div class="input-group">
+                                    <input type="number" class="form-control" id="selling_price" 
+                                           value="{{ product.product_selling_price }}" step="0.01" 
+                                           readonly>
+                                    <span class="input-group-text">€</span>
+                                </div>
+                                <div class="form-text">Προκαθορισμένη τιμή πώλησης</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="alert alert-success" id="totalSection">
+                                <h5><i class="fas fa-calculator"></i> Υπολογισμός Πώλησης</h5>
+                                <div class="row">
+                                    <div class="col-md-4">
+                                        <strong>Ποσότητα:</strong><br>
+                                        <span id="displayQuantity">1</span> τεμάχια
+                                    </div>
+                                    <div class="col-md-4">
+                                        <strong>Τιμή Μονάδας:</strong><br>
+                                        {{ "%.2f"|format(product.product_selling_price) }}€
+                                    </div>
+                                    <div class="col-md-4">
+                                        <strong>Συνολικό Κόστος:</strong><br>
+                                        <span id="totalPrice" class="fs-4 text-success">{{ "%.2f"|format(product.product_selling_price) }}€</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="mb-3">
+                                <label for="notes" class="form-label">Σημειώσεις (προαιρετικό)</label>
+                                <textarea class="form-control" id="notes" name="notes" rows="3" 
+                                          placeholder="Προσθέστε τυχόν σημειώσεις για την πώληση...">{{ request.form.notes if request.form.notes }}</textarea>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="alert alert-warning">
+                        <i class="fas fa-exclamation-triangle"></i> 
+                        <strong>Προσοχή:</strong> Η πώληση θα αφαιρέσει την επιλεγμένη ποσότητα από το απόθεμα 
+                        και θα ενημερώσει τα στατιστικά πωλήσεων.
+                    </div>
+
+                    <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                        <a href="{{ url_for('employee.view_product_details', product_id=product.product_id) }}" 
+                           class="btn btn-secondary me-md-2">
+                            <i class="fas fa-times"></i> Ακύρωση
+                        </a>
+                        <button type="submit" class="btn btn-success" onclick="return confirmSale()">
+                            <i class="fas fa-cash-register"></i> Επιβεβαίωση Πώλησης
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Product Data for JavaScript -->
+<script type="application/json" id="productData">
+{
+    "unitPrice": {{ product.product_selling_price }},
+    "maxQuantity": {{ product.product_quantity }},
+    "productName": "{{ product.product_name }}"
+}
+</script>
+
+<script>
+const productData = JSON.parse(document.getElementById('productData').textContent);
+const unitPrice = productData.unitPrice;
+const maxQuantity = productData.maxQuantity;
+
+function calculateTotal() {
+    const quantity = parseInt(document.getElementById('quantity').value) || 1;
+    const total = quantity * unitPrice;
+    
+    document.getElementById('displayQuantity').textContent = quantity;
+    document.getElementById('totalPrice').textContent = total.toFixed(2) + '€';
+    
+    // Validate quantity
+    if (quantity > maxQuantity) {
+        document.getElementById('quantity').value = maxQuantity;
+        calculateTotal();
+    } else if (quantity < 1) {
+        document.getElementById('quantity').value = 1;
+        calculateTotal();
+    }
+}
+
+function confirmSale() {
+    const quantity = parseInt(document.getElementById('quantity').value);
+    const total = (quantity * unitPrice).toFixed(2);
+    
+    return confirm(`Επιβεβαίωση πώλησης:\n\n` +
+                  `Προϊόν: ${productData.productName}\n` +
+                  `Ποσότητα: ${quantity} τεμάχια\n` +
+                  `Συνολικό κόστος: ${total}€\n\n` +
+                  `Θέλετε να συνεχίσετε;`);
+}
+
+// Initialize calculation
+document.addEventListener('DOMContentLoaded', function() {
+    calculateTotal();
+});
+</script>
+{% endblock %}

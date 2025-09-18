@@ -1,0 +1,207 @@
+{% extends "base.html" %}
+
+{% block title %}Προφίλ Χρήστη - Σύστημα Διαχείρισης Αποθηκών{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <h1><i class="fas fa-user"></i> Προφίλ Χρήστη</h1>
+        <p class="lead">Διαχείριση στοιχείων προφίλ</p>
+    </div>
+</div>
+
+<div class="row mb-3">
+    <div class="col-12">
+        <a href="{{ url_for('employee.dashboard') }}" class="btn btn-secondary">
+            <i class="fas fa-arrow-left"></i> Επιστροφή στον Πίνακα Ελέγχου
+        </a>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-lg-4">
+        <!-- Profile Info Card -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5><i class="fas fa-id-card"></i> Στοιχεία Ταυτότητας</h5>
+            </div>
+            <div class="card-body text-center">
+                <div class="mb-3">
+                    <i class="fas fa-user-circle fa-5x text-primary"></i>
+                </div>
+                <h4>{{ current_user.employee_name }}</h4>
+                <p class="text-muted">{{ current_user.employee_username }}</p>
+                <div class="row">
+                    <div class="col-6">
+                        <small class="text-muted">Μονάδα:</small><br>
+                        <strong>{{ current_user.employee_unit }}</strong>
+                    </div>
+                    <div class="col-6">
+                        <small class="text-muted">Ρόλος:</small><br>
+                        <span class="badge bg-info">{{ current_user.role.title() }}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quick Actions Card -->
+        <div class="card">
+            <div class="card-header">
+                <h5><i class="fas fa-bolt"></i> Γρήγορες Ενέργειες</h5>
+            </div>
+            <div class="card-body">
+                <div class="d-grid gap-2">
+                    <a href="{{ url_for('employee.change_password') }}" class="btn btn-outline-warning">
+                        <i class="fas fa-key"></i> Αλλαγή Κωδικού
+                    </a>
+                    <a href="{{ url_for('employee.view_products') }}" class="btn btn-outline-primary">
+                        <i class="fas fa-boxes"></i> Προβολή Προϊόντων
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-8">
+        <!-- Profile Details Card -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5><i class="fas fa-user-edit"></i> Στοιχεία Προφίλ</h5>
+            </div>
+            <div class="card-body">
+                <form method="POST">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="employee_name" class="form-label">Ονοματεπώνυμο *</label>
+                                <input type="text" class="form-control" id="employee_name" name="employee_name" 
+                                       value="{{ request.form.employee_name if request.form.employee_name else current_user.employee_name }}" 
+                                       required>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="employee_username" class="form-label">Όνομα Χρήστη</label>
+                                <input type="text" class="form-control" id="employee_username" 
+                                       value="{{ current_user.employee_username }}" readonly>
+                                <div class="form-text">Το όνομα χρήστη δεν μπορεί να αλλάξει</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="employee_unit" class="form-label">Μονάδα Εργασίας</label>
+                                <input type="text" class="form-control" id="employee_unit" 
+                                       value="{{ current_user.employee_unit }}" readonly>
+                                <div class="form-text">Η μονάδα καθορίζεται από τον επιβλέποντα</div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="role" class="form-label">Ρόλος</label>
+                                <input type="text" class="form-control" id="role" 
+                                       value="{{ current_user.role.title() }}" readonly>
+                                <div class="form-text">Ο ρόλος καθορίζεται από τον διαχειριστή</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="employee_phone" class="form-label">Τηλέφωνο</label>
+                                <input type="tel" class="form-control" id="employee_phone" name="employee_phone" 
+                                       value="{{ request.form.employee_phone if request.form.employee_phone else current_user.employee_phone }}" 
+                                       placeholder="π.χ. 2101234567">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="employee_email" class="form-label">Email</label>
+                                <input type="email" class="form-control" id="employee_email" name="employee_email" 
+                                       value="{{ request.form.employee_email if request.form.employee_email else current_user.employee_email }}" 
+                                       placeholder="user@example.com">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-12">
+                            <div class="mb-3">
+                                <label for="employee_address" class="form-label">Διεύθυνση</label>
+                                <textarea class="form-control" id="employee_address" name="employee_address" rows="2" 
+                                          placeholder="Εισάγετε τη διεύθυνσή σας...">{{ request.form.employee_address if request.form.employee_address else current_user.employee_address }}</textarea>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle"></i> 
+                        <strong>Σημείωση:</strong> Μόνο το όνομα, τηλέφωνο, email και διεύθυνση μπορούν να τροποποιηθούν. 
+                        Τα υπόλοιπα στοιχεία ελέγχονται από τους διαχειριστές.
+                    </div>
+
+                    <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                        <a href="{{ url_for('employee.dashboard') }}" class="btn btn-secondary me-md-2">
+                            <i class="fas fa-times"></i> Ακύρωση
+                        </a>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save"></i> Ενημέρωση Προφίλ
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Account Activity Card -->
+        <div class="card">
+            <div class="card-header">
+                <h5><i class="fas fa-history"></i> Δραστηριότητα Λογαριασμού</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="text-center">
+                            <i class="fas fa-calendar-check fa-2x text-success mb-2"></i>
+                            <h6>Τελευταία Σύνδεση</h6>
+                            <p class="text-muted">
+                                {% if current_user.last_login %}
+                                    {{ current_user.last_login.strftime('%d/%m/%Y %H:%M') }}
+                                {% else %}
+                                    Πρώτη σύνδεση
+                                {% endif %}
+                            </p>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="text-center">
+                            <i class="fas fa-user-plus fa-2x text-primary mb-2"></i>
+                            <h6>Δημιουργία Λογαριασμού</h6>
+                            <p class="text-muted">
+                                {% if current_user.created_at %}
+                                    {{ current_user.created_at.strftime('%d/%m/%Y') }}
+                                {% else %}
+                                    Μη διαθέσιμο
+                                {% endif %}
+                            </p>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="text-center">
+                            <i class="fas fa-shield-alt fa-2x text-warning mb-2"></i>
+                            <h6>Ασφάλεια</h6>
+                            <p class="text-muted">
+                                <a href="{{ url_for('employee.change_password') }}" class="btn btn-sm btn-outline-warning">
+                                    Αλλαγή Κωδικού
+                                </a>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

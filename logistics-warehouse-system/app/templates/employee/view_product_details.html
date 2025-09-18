@@ -1,0 +1,196 @@
+{% extends "base.html" %}
+
+{% block title %}{{ product.product_name }} - Λεπτομέρειες Προϊόντος - Σύστημα Διαχείρισης Αποθηκών{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <h1><i class="fas fa-box"></i> {{ product.product_name }}</h1>
+        <p class="lead">Κωδικός: {{ product.product_id }} | Αποθήκη: {{ unit_info.unit_name }}</p>
+    </div>
+</div>
+
+<div class="row mb-3">
+    <div class="col-12">
+        <a href="{{ url_for('employee.view_products') }}" class="btn btn-secondary">
+            <i class="fas fa-arrow-left"></i> Επιστροφή στα Προϊόντα
+        </a>
+        {% if product.product_quantity > 0 %}
+        <a href="{{ url_for('employee.sell_product', product_id=product.product_id) }}" class="btn btn-success">
+            <i class="fas fa-cash-register"></i> Πώληση Προϊόντος
+        </a>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Product Info Cards -->
+<div class="row">
+    <!-- Basic Info -->
+    <div class="col-md-6">
+        <div class="card h-100">
+            <div class="card-header">
+                <h5><i class="fas fa-info-circle"></i> Βασικές Πληροφορίες</h5>
+            </div>
+            <div class="card-body">
+                <table class="table table-borderless">
+                    <tr>
+                        <td><strong>Όνομα:</strong></td>
+                        <td>{{ product.product_name }}</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Κωδικός:</strong></td>
+                        <td><code>{{ product.product_id }}</code></td>
+                    </tr>
+                    <tr>
+                        <td><strong>Κατηγορία:</strong></td>
+                        <td><span class="badge bg-info">{{ product.product_category }}</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>Κατασκευαστής:</strong></td>
+                        <td>{{ product.product_manufacturer }}</td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quantity Info -->
+    <div class="col-md-6">
+        <div class="card h-100">
+            <div class="card-header">
+                <h5><i class="fas fa-cubes"></i> Πληροφορίες Αποθέματος</h5>
+            </div>
+            <div class="card-body">
+                <table class="table table-borderless">
+                    <tr>
+                        <td><strong>Διαθέσιμη Ποσότητα:</strong></td>
+                        <td>
+                            <span class="badge {{ 'bg-success' if product.product_quantity > 10 else ('bg-warning' if product.product_quantity > 0 else 'bg-danger') }} fs-6">
+                                {{ product.product_quantity }} τεμάχια
+                            </span>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><strong>Πωλημένα Τεμάχια:</strong></td>
+                        <td><span class="badge bg-secondary fs-6">{{ product.get('product_sold_quantity', 0) }} τεμάχια</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>Βάρος/τεμάχιο:</strong></td>
+                        <td>{{ product.product_weight }} kg</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Όγκος/τεμάχιο:</strong></td>
+                        <td>{{ product.product_volume }} m³</td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mt-4">
+    <!-- Price Info -->
+    <div class="col-md-6">
+        <div class="card h-100">
+            <div class="card-header">
+                <h5><i class="fas fa-euro-sign"></i> Οικονομικές Πληροφορίες</h5>
+            </div>
+            <div class="card-body">
+                <table class="table table-borderless">
+                    <tr>
+                        <td><strong>Τιμή Αγοράς:</strong></td>
+                        <td><span class="text-danger">{{ "%.2f"|format(product.product_purchase_price) }}€</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>Τιμή Πώλησης:</strong></td>
+                        <td><span class="text-success">{{ "%.2f"|format(product.product_selling_price) }}€</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>Κέρδος/τεμάχιο:</strong></td>
+                        <td>
+                            {% set profit_per_item = product.product_selling_price - product.product_purchase_price %}
+                            <span class="{{ 'text-success' if profit_per_item >= 0 else 'text-danger' }}">
+                                {{ "%.2f"|format(profit_per_item) }}€
+                            </span>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><strong>Συνολικό Κέρδος:</strong></td>
+                        <td>
+                            <span class="{{ 'text-success' if product.get('product_unit_gain', 0) >= 0 else 'text-danger' }}">
+                                {{ "%.2f"|format(product.get('product_unit_gain', 0)) }}€
+                            </span>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Volume Usage -->
+    <div class="col-md-6">
+        <div class="card h-100">
+            <div class="card-header">
+                <h5><i class="fas fa-chart-bar"></i> Χρήση Χώρου</h5>
+            </div>
+            <div class="card-body">
+                {% set total_volume = product.product_volume * product.product_quantity %}
+                <div class="mb-3">
+                    <label class="form-label"><strong>Συνολικός Όγκος:</strong></label>
+                    <div class="progress">
+                        {% set volume_percentage = (total_volume / unit_info.unit_volume * 100) if unit_info.unit_volume > 0 else 0 %}
+                        <div class="progress-bar" role="progressbar" style="width: {{ volume_percentage }}%" 
+                             aria-valuenow="{{ volume_percentage }}" aria-valuemin="0" aria-valuemax="100">
+                            {{ "%.1f"|format(volume_percentage) }}%
+                        </div>
+                    </div>
+                    <small class="text-muted">{{ "%.2f"|format(total_volume) }} m³ από {{ unit_info.unit_volume }} m³</small>
+                </div>
+
+                <table class="table table-borderless table-sm">
+                    <tr>
+                        <td><strong>Όγκος ανά τεμάχιο:</strong></td>
+                        <td>{{ product.product_volume }} m³</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Τεμάχια:</strong></td>
+                        <td>{{ product.product_quantity }}</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Συνολικός όγκος:</strong></td>
+                        <td><strong>{{ "%.2f"|format(total_volume) }} m³</strong></td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Sell Product Card (if available) -->
+{% if product.product_quantity > 0 %}
+<div class="row mt-4">
+    <div class="col-12">
+        <div class="card border-success">
+            <div class="card-header bg-success text-white">
+                <h5><i class="fas fa-cash-register"></i> Πώληση Προϊόντος</h5>
+            </div>
+            <div class="card-body">
+                <p>Διαθέσιμα <strong>{{ product.product_quantity }} τεμάχια</strong> για πώληση.</p>
+                <a href="{{ url_for('employee.sell_product', product_id=product.product_id) }}" class="btn btn-success">
+                    <i class="fas fa-cash-register"></i> Προχώρηση σε Πώληση
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% else %}
+<div class="row mt-4">
+    <div class="col-12">
+        <div class="alert alert-warning">
+            <i class="fas fa-exclamation-triangle"></i> 
+            Το προϊόν δεν είναι διαθέσιμο για πώληση (μηδενικό απόθεμα).
+        </div>
+    </div>
+</div>
+{% endif %}
+{% endblock %}

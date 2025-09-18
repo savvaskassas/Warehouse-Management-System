@@ -115,7 +115,7 @@ def employee_dashboard():
     
     return redirect(url_for('employee.dashboard'))
 
-@app.route('/profile')
+@app.route('/profile', methods=['GET', 'POST'])
 def profile():
     """User profile"""
     if 'user_id' not in session:
@@ -123,8 +123,32 @@ def profile():
     
     user = user_model.get_user_by_username(session['username'])
     unit_info = None
-    if user['unit_id']:
+    if user.get('unit_id'):
         unit_info = unit_model.get_unit_by_id(user['unit_id'])
+    
+    if request.method == 'POST':
+        # Update profile information
+        employee_name = request.form.get('employee_name', '').strip()
+        employee_phone = request.form.get('employee_phone', '').strip()
+        employee_email = request.form.get('employee_email', '').strip()
+        employee_address = request.form.get('employee_address', '').strip()
+        
+        if not employee_name:
+            flash('Το όνομα είναι υποχρεωτικό!', 'error')
+        else:
+            # Update profile
+            update_data = {
+                'employee_name': employee_name,
+                'employee_phone': employee_phone,
+                'employee_email': employee_email,
+                'employee_address': employee_address
+            }
+            
+            if user_model.update_user_profile(session['username'], update_data):
+                flash('Το προφίλ ενημερώθηκε επιτυχώς!', 'success')
+                return redirect(url_for('profile'))
+            else:
+                flash('Σφάλμα κατά την ενημέρωση του προφίλ!', 'error')
     
     return render_template('profile.html', user=user, unit_info=unit_info)
 
@@ -135,20 +159,27 @@ def change_password():
         return redirect(url_for('login'))
     
     if request.method == 'POST':
-        current_password = request.form['current_password']
-        new_password = request.form['new_password']
-        confirm_password = request.form['confirm_password']
+        current_password = request.form.get('current_password', '')
+        new_password = request.form.get('new_password', '')
+        confirm_password = request.form.get('confirm_password', '')
         
-        # Verify current password
-        user = user_model.authenticate_user(session['username'], current_password, session.get('unit_id'))
-        if not user:
-            flash('Λάθος τρέχων κωδικός!', 'error')
+        if not all([current_password, new_password, confirm_password]):
+            flash('Παρακαλώ συμπληρώστε όλα τα πεδία!', 'error')
         elif new_password != confirm_password:
             flash('Οι νέοι κωδικοί δεν ταιριάζουν!', 'error')
+        elif len(new_password) < 8:
+            flash('Ο κωδικός πρέπει να έχει τουλάχιστον 8 χαρακτήρες!', 'error')
         else:
-            user_model.update_password(session['username'], new_password)
-            flash('Ο κωδικός άλλαξε επιτυχώς!', 'success')
-            return redirect(url_for('profile'))
+            # Verify current password
+            if user_model.verify_password(session['username'], current_password):
+                if user_model.update_password(session['username'], new_password):
+                    flash('Ο κωδικός άλλαξε επιτυχώς! Παρακαλώ συνδεθείτε ξανά.', 'success')
+                    session.clear()
+                    return redirect(url_for('login'))
+                else:
+                    flash('Σφάλμα κατά την αλλαγή κωδικού!', 'error')
+            else:
+                flash('Λάθος τρέχων κωδικός!', 'error')
     
     return render_template('change_password.html')
 

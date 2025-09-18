@@ -167,12 +167,30 @@
 </div>
 {% endif %}
 
+<script type="application/json" id="unit-data">
+{
+    "totalVolume": {{ unit_info.unit_volume }},
+    "usedVolume": {{ "%.2f"|format(total_volume_used) }},
+    "products": [
+        {% for product in products %}
+        {
+            "name": "{{ product.product_name }}",
+            "quantity": {{ product.product_quantity }}
+        }{% if not loop.last %},{% endif %}
+        {% endfor %}
+    ]
+}
+</script>
+
 <script>
+// Get data from JSON script
+const unitData = JSON.parse(document.getElementById('unit-data').textContent);
+const totalVolume = unitData.totalVolume;
+const usedVolume = unitData.usedVolume;
+const freeVolume = totalVolume - usedVolume;
+
 // Volume Usage Pie Chart
 const volumeCtx = document.getElementById('volumeChart').getContext('2d');
-const totalVolume = {{ unit_info.unit_volume }};
-const usedVolume = {{ "%.2f"|format(total_volume_used) }};
-const freeVolume = totalVolume - usedVolume;
 
 new Chart(volumeCtx, {
     type: 'pie',
@@ -204,15 +222,15 @@ new Chart(volumeCtx, {
 });
 
 // Products Distribution Chart
-{% if products %}
-const productsCtx = document.getElementById('productsChart').getContext('2d');
-const productNames = [{% for product in products %}'{{ product.product_name }}'{% if not loop.last %},{% endif %}{% endfor %}];
-const productQuantities = [{% for product in products %}{{ product.product_quantity }}{% if not loop.last %},{% endif %}{% endfor %}];
+if (unitData.products && unitData.products.length > 0) {
+    const productsCtx = document.getElementById('productsChart').getContext('2d');
+    const productNames = unitData.products.map(p => p.name);
+    const productQuantities = unitData.products.map(p => p.quantity);
 
-const colors = [
-    '#3498db', '#e74c3c', '#2ecc71', '#f39c12', '#9b59b6',
-    '#1abc9c', '#34495e', '#e67e22', '#95a5a6', '#f1c40f'
-];
+    const colors = [
+        '#3498db', '#e74c3c', '#2ecc71', '#f39c12', '#9b59b6',
+        '#1abc9c', '#34495e', '#e67e22', '#95a5a6', '#f1c40f'
+    ];
 
 new Chart(productsCtx, {
     type: 'doughnut',
@@ -243,6 +261,6 @@ new Chart(productsCtx, {
         }
     }
 });
-{% endif %}
+}
 </script>
 {% endblock %}

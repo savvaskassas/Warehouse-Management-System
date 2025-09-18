@@ -31,7 +31,9 @@
                             <tr>
                                 <th>Κωδικός</th>
                                 <th>Όνομα</th>
-                                <th>Περιγραφή</th>
+                                <th>Κατηγορία</th>
+                                <th>Συνολική Ποσότητα</th>
+                                <th>Πωλήθηκαν</th>
                                 <th>Όγκος ανά τεμάχιο (m³)</th>
                                 <th>Τιμή Αγοράς (€)</th>
                                 <th>Τιμή Πώλησης (€)</th>
@@ -42,12 +44,22 @@
                         <tbody>
                             {% for product in products %}
                             <tr>
-                                <td><span class="badge bg-primary">{{ product._id }}</span></td>
-                                <td><strong>{{ product.name }}</strong></td>
-                                <td>{{ product.description[:50] + '...' if product.description and product.description|length > 50 else product.description or '-' }}</td>
-                                <td>{{ "{:.3f}".format(product.volume_per_unit) }}</td>
-                                <td>{{ "{:.2f}".format(product.purchase_price) }}</td>
-                                <td>{{ "{:.2f}".format(product.selling_price) }}</td>
+                                <td><span class="badge bg-primary">{{ product.product_id }}</span></td>
+                                <td><strong>{{ product.product_name }}</strong></td>
+                                <td>{{ product.product_category or '-' }}</td>
+                                <td>
+                                    <span class="badge {{ 'bg-success' if product.get('total_quantity', 0) > 0 else 'bg-secondary' }}">
+                                        {{ product.get('total_quantity', 0) }} τεμ.
+                                    </span>
+                                </td>
+                                <td>
+                                    <span class="badge bg-info">
+                                        {{ product.get('total_sold', 0) }} τεμ.
+                                    </span>
+                                </td>
+                                <td>{{ "{:.3f}".format(product.product_volume) if product.product_volume is not none else '-' }}</td>
+                                <td>{{ "{:.2f}".format(product.product_purchase_price) if product.product_purchase_price is not none else '-' }}</td>
+                                <td>{{ "{:.2f}".format(product.product_selling_price) if product.product_selling_price is not none else '-' }}</td>
                                 <td>{{ product.created_at.strftime('%d/%m/%Y %H:%M') if product.created_at else '-' }}</td>
                                 <td>
                                     <div class="btn-group" role="group">
@@ -58,7 +70,7 @@
                                             <i class="fas fa-edit"></i>
                                         </button>
                                         <button type="button" class="btn btn-sm btn-outline-danger" title="Διαγραφή" 
-                                                onclick="confirmDelete('{{ product._id }}', '{{ product.name }}')">
+                                                onclick="confirmDelete('{{ product.product_id }}', '{{ product.product_name }}')">
                                             <i class="fas fa-trash"></i>
                                         </button>
                                     </div>

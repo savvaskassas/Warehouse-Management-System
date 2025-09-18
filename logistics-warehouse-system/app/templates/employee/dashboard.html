@@ -1,0 +1,171 @@
+{% extends "base.html" %}
+
+{% block title %}Πίνακας Ελέγχου Υπαλλήλου - Σύστημα Διαχείρισης Αποθηκών{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <h1><i class="fas fa-user"></i> Πίνακας Ελέγχου Υπαλλήλου</h1>
+        <p class="lead">Καλώς ήλθατε, {{ session.username }}!</p>
+    </div>
+</div>
+
+<!-- Unit Information Card -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card bg-primary text-white">
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-8">
+                        <h4><i class="fas fa-warehouse"></i> {{ unit_info.unit_name }}</h4>
+                        <p class="mb-0">Μονάδα: {{ unit_info.unit_id }} | Χωρητικότητα: {{ unit_info.unit_volume }}m³</p>
+                    </div>
+                    <div class="col-md-4 text-end">
+                        {% if is_supervisor %}
+                            <a href="{{ url_for('supervisor.dashboard') }}" class="btn btn-light">
+                                <i class="fas fa-user-tie"></i> Λειτουργίες Επιβλέποντα
+                            </a>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Quick Actions -->
+<div class="row mb-4">
+    <div class="col-md-6">
+        <div class="card h-100">
+            <div class="card-header">
+                <h5><i class="fas fa-bolt"></i> Γρήγορες Ενέργειες</h5>
+            </div>
+            <div class="card-body">
+                <div class="d-grid gap-2">
+                    <a href="{{ url_for('employee.view_products') }}" class="btn btn-primary">
+                        <i class="fas fa-boxes"></i> Προβολή Προϊόντων
+                    </a>
+                    <a href="{{ url_for('profile') }}" class="btn btn-outline-secondary">
+                        <i class="fas fa-user-edit"></i> Επεξεργασία Προφίλ
+                    </a>
+                    <a href="{{ url_for('change_password') }}" class="btn btn-outline-warning">
+                        <i class="fas fa-key"></i> Αλλαγή Κωδικού
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-6">
+        <div class="card h-100">
+            <div class="card-header">
+                <h5><i class="fas fa-search"></i> Αναζήτηση Προϊόντων</h5>
+            </div>
+            <div class="card-body">
+                <form action="{{ url_for('employee.view_products') }}" method="GET">
+                    <div class="mb-3">
+                        <input type="text" class="form-control" name="product_name" 
+                               placeholder="Αναζήτηση κατά όνομα..." id="quickSearch">
+                    </div>
+                    <div class="mb-3">
+                        <input type="text" class="form-control" name="product_id" 
+                               placeholder="Αναζήτηση κατά κωδικό προϊόντος...">
+                    </div>
+                    <div class="d-grid">
+                        <button type="submit" class="btn btn-success">
+                            <i class="fas fa-search"></i> Αναζήτηση
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Recent Products -->
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5><i class="fas fa-boxes"></i> Κορυφαία Προϊόντα</h5>
+                <a href="{{ url_for('employee.view_products') }}" class="btn btn-sm btn-outline-primary">
+                    Προβολή Όλων
+                </a>
+            </div>
+            <div class="card-body">
+                {% if products %}
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Κωδικός</th>
+                                    <th>Όνομα Προϊόντος</th>
+                                    <th>Κατηγορία</th>
+                                    <th>Διαθέσιμα</th>
+                                    <th>Τιμή Πώλησης</th>
+                                    <th>Ενέργειες</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for product in products %}
+                                <tr>
+                                    <td><code>{{ product.product_id }}</code></td>
+                                    <td>{{ product.product_name }}</td>
+                                    <td>
+                                        <span class="badge bg-info">{{ product.product_category }}</span>
+                                    </td>
+                                    <td>
+                                        {% if product.product_quantity > 0 %}
+                                            <span class="badge bg-success">{{ product.product_quantity }}</span>
+                                        {% else %}
+                                            <span class="badge bg-danger">Εξαντλημένο</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>{{ "%.2f"|format(product.product_selling_price) }}€</td>
+                                    <td>
+                                        <div class="btn-group" role="group">
+                                            <a href="{{ url_for('employee.view_product_details', product_id=product.product_id) }}" 
+                                               class="btn btn-sm btn-outline-primary">
+                                                <i class="fas fa-eye"></i>
+                                            </a>
+                                            {% if product.product_quantity > 0 %}
+                                                <a href="{{ url_for('employee.sell_product', product_id=product.product_id) }}" 
+                                                   class="btn btn-sm btn-outline-success">
+                                                    <i class="fas fa-cash-register"></i>
+                                                </a>
+                                            {% endif %}
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <div class="text-center py-4">
+                        <i class="fas fa-box-open fa-3x text-muted mb-3"></i>
+                        <h5 class="text-muted">Δεν βρέθηκαν προϊόντα</h5>
+                        <p class="text-muted">Δεν υπάρχουν προϊόντα στην αποθήκη αυτή τη στιγμή.</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Auto-suggest for quick search
+document.getElementById('quickSearch').addEventListener('input', function(e) {
+    const query = e.target.value;
+    if (query.length >= 2) {
+        fetch(`{{ url_for('employee.search_products_api') }}?q=${encodeURIComponent(query)}`)
+            .then(response => response.json())
+            .then(data => {
+                // Implementation for auto-suggest dropdown could go here
+                console.log('Search results:', data);
+            })
+            .catch(error => console.error('Search error:', error));
+    }
+});
+</script>
+{% endblock %}

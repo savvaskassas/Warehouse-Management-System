@@ -215,6 +215,78 @@ def get_product_categories():
     categories = list(db_instance.db.products_master.distinct('product_category'))
     return jsonify(categories)
 
+@employee_bp.route('/profile', methods=['GET', 'POST'])
+def profile():
+    """View and edit employee profile"""
+    check = require_employee()
+    if check: return check
+    
+    current_user = user_model.get_user_by_username(session['username'])
+    
+    if not current_user:
+        flash('Το προφίλ δεν βρέθηκε!', 'error')
+        return redirect(url_for('employee.dashboard'))
+    
+    if request.method == 'POST':
+        # Update profile information
+        employee_name = request.form.get('employee_name', '').strip()
+        employee_phone = request.form.get('employee_phone', '').strip()
+        employee_email = request.form.get('employee_email', '').strip()
+        employee_address = request.form.get('employee_address', '').strip()
+        
+        if not employee_name:
+            flash('Το όνομα είναι υποχρεωτικό!', 'error')
+        else:
+            # Update profile
+            update_data = {
+                'employee_name': employee_name,
+                'employee_phone': employee_phone,
+                'employee_email': employee_email,
+                'employee_address': employee_address
+            }
+            
+            if user_model.update_user_profile(session['username'], update_data):
+                flash('Το προφίλ ενημερώθηκε επιτυχώς!', 'success')
+                return redirect(url_for('employee.profile'))
+            else:
+                flash('Σφάλμα κατά την ενημέρωση του προφίλ!', 'error')
+    
+    return render_template('employee/profile.html',
+                         current_user=current_user,
+                         is_supervisor=session.get('role') in ['supervisor', 'admin'])
+
+@employee_bp.route('/change_password', methods=['GET', 'POST'])
+def change_password():
+    """Change employee password"""
+    check = require_employee()
+    if check: return check
+    
+    if request.method == 'POST':
+        current_password = request.form.get('current_password', '')
+        new_password = request.form.get('new_password', '')
+        confirm_password = request.form.get('confirm_password', '')
+        
+        if not all([current_password, new_password, confirm_password]):
+            flash('Παρακαλώ συμπληρώστε όλα τα πεδία!', 'error')
+        elif new_password != confirm_password:
+            flash('Οι νέοι κωδικοί δεν ταιριάζουν!', 'error')
+        elif len(new_password) < 8:
+            flash('Ο κωδικός πρέπει να έχει τουλάχιστον 8 χαρακτήρες!', 'error')
+        else:
+            # Verify current password
+            if user_model.verify_password(session['username'], current_password):
+                if user_model.update_password(session['username'], new_password):
+                    flash('Ο κωδικός άλλαξε επιτυχώς! Παρακαλώ συνδεθείτε ξανά.', 'success')
+                    session.clear()
+                    return redirect(url_for('login'))
+                else:
+                    flash('Σφάλμα κατά την αλλαγή κωδικού!', 'error')
+            else:
+                flash('Λάθος τρέχων κωδικός!', 'error')
+    
+    return render_template('employee/change_password.html',
+                         is_supervisor=session.get('role') in ['supervisor', 'admin'])
+
 @employee_bp.route('/quick_search')
 def quick_search():
     """Quick search page for products"""

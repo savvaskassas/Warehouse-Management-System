@@ -139,6 +139,7 @@ def create_product():
         product_purchase_price = float(request.form['product_purchase_price'])
         product_selling_price = float(request.form['product_selling_price'])
         product_manufacturer = request.form['product_manufacturer']
+        initial_quantity = int(request.form.get('initial_quantity', 0))
         
         if all([product_name, product_weight >= 0, product_volume >= 0, 
                 product_category, product_purchase_price >= 0, 
@@ -147,10 +148,11 @@ def create_product():
             product_id = product_model.create_product(
                 product_name, product_weight, product_volume,
                 product_category, product_purchase_price, 
-                product_selling_price, product_manufacturer
+                product_selling_price, product_manufacturer,
+                initial_quantity
             )
             
-            flash(f'Το προϊόν "{product_name}" δημιουργήθηκε επιτυχώς με κωδικό {product_id}!', 'success')
+            flash(f'Το προϊόν "{product_name}" δημιουργήθηκε επιτυχώς με κωδικό {product_id} και αρχική ποσότητα {initial_quantity}!', 'success')
             return redirect(url_for('admin.view_products'))
         else:
             flash('Παρακαλώ συμπληρώστε όλα τα πεδία σωστά!', 'error')
@@ -163,7 +165,22 @@ def view_products():
     check = require_admin()
     if check: return check
     
+    # Get all master products
     products = list(db_instance.db.products_master.find())
+    
+    # Enrich with total quantities across all units
+    for product in products:
+        # Get total quantity across all units
+        unit_products = list(db_instance.db.unit_products.find({
+            "product_id": product["product_id"]
+        }))
+        
+        total_quantity = sum(up.get("product_quantity", 0) for up in unit_products)
+        total_sold = sum(up.get("product_sold_quantity", 0) for up in unit_products)
+        
+        product["total_quantity"] = total_quantity
+        product["total_sold"] = total_sold
+    
     return render_template('admin/view_products.html', products=products)
 
 @admin_bp.route('/create_supervisor', methods=['GET', 'POST'])

@@ -17,11 +17,18 @@ class UserModel:
         
         user_data = {
             "username": username,
+            "employee_username": username,
             "password": hashed_password,
             "name": name,
             "surname": surname,
+            "employee_name": f"{name} {surname}",
             "role": role,
             "unit_id": unit_id,
+            "employee_unit": unit_id,
+            "employee_phone": "",
+            "employee_email": "",
+            "employee_address": "",
+            "last_login": None,
             "created_at": datetime.utcnow(),
             "updated_at": datetime.utcnow()
         }
@@ -55,10 +62,35 @@ class UserModel:
     def update_password(self, username, new_password):
         """Update user password"""
         hashed_password = bcrypt.hashpw(new_password.encode('utf-8'), bcrypt.gensalt())
-        return self.collection.update_one(
+        result = self.collection.update_one(
             {"username": username},
             {"$set": {"password": hashed_password, "updated_at": datetime.utcnow()}}
         )
+        return result.modified_count > 0
+    
+    def verify_password(self, username, password):
+        """Verify user password"""
+        user = self.collection.find_one({"username": username})
+        if user and bcrypt.checkpw(password.encode('utf-8'), user['password']):
+            return True
+        return False
+    
+    def update_user_profile(self, username, update_data):
+        """Update user profile information"""
+        update_data['updated_at'] = datetime.utcnow()
+        result = self.collection.update_one(
+            {"username": username},
+            {"$set": update_data}
+        )
+        return result.modified_count > 0
+    
+    def update_last_login(self, username):
+        """Update user's last login timestamp"""
+        result = self.collection.update_one(
+            {"username": username},
+            {"$set": {"last_login": datetime.utcnow()}}
+        )
+        return result.modified_count > 0
     
     def delete_user(self, username):
         """Delete user"""
@@ -108,7 +140,7 @@ class ProductModel:
     
     def create_product(self, product_name, product_weight, product_volume, 
                       product_category, product_purchase_price, product_selling_price,
-                      product_manufacturer):
+                      product_manufacturer, initial_quantity=0):
         """Create a new product in master catalog"""
         # Generate product_id
         last_product = self.master_collection.find().sort("product_id", -1).limit(1)
@@ -133,10 +165,10 @@ class ProductModel:
         
         result = self.master_collection.insert_one(product_data)
         
-        # Add product to all existing units with 0 quantity
+        # Add product to all existing units with specified initial quantity
         units = db_instance.db.units.find()
         for unit in units:
-            self.add_product_to_unit(unit["unit_id"], product_id, 0)
+            self.add_product_to_unit(unit["unit_id"], product_id, initial_quantity)
         
         return product_id
     
