@@ -25,18 +25,21 @@ def dashboard():
     supervisors = user_model.get_all_supervisors()
     
     # Calculate total profits and volume usage
-    total_profit = 0
+    total_realized_gain = 0
+    total_potential_gain = 0
     total_volume_used = 0
     total_volume_capacity = 0
     total_employees = 0
     
     for unit in units:
-        # Get unit products for calculations
-        unit_products = product_model.get_products_by_unit(unit['unit_id'])
+        # Get financial summary for each unit
+        financial_summary = product_model.calculate_unit_financial_summary(unit['unit_id'])
+        unit['financial_summary'] = financial_summary  # Add to unit object
+        total_realized_gain += financial_summary['total_realized_gain']
+        total_potential_gain += financial_summary['total_potential_gain']
         
-        # Calculate unit profit
-        unit_profit = sum(p.get('product_unit_gain', 0) for p in unit_products)
-        total_profit += unit_profit
+        # Get unit products for volume calculations
+        unit_products = product_model.get_products_by_unit(unit['unit_id'])
         
         # Calculate volume usage
         unit_volume_used = 0
@@ -60,7 +63,8 @@ def dashboard():
     return render_template('admin/dashboard.html',
                          units=units,
                          supervisors=supervisors,
-                         total_profit=total_profit,
+                         total_realized_gain=total_realized_gain,
+                         total_potential_gain=total_potential_gain,
                          volume_usage_percentage=volume_usage_percentage,
                          total_employees=total_employees,
                          unit_count=len(units))
@@ -98,10 +102,10 @@ def view_units():
     
     units = unit_model.get_all_units()
     
-    # Calculate profit for each unit
+    # Calculate financial summary for each unit
     for unit in units:
-        unit_products = product_model.get_products_by_unit(unit['unit_id'])
-        unit['total_profit'] = sum(p.get('product_unit_gain', 0) for p in unit_products)
+        financial_summary = product_model.calculate_unit_financial_summary(unit['unit_id'])
+        unit['financial_summary'] = financial_summary
     
     return render_template('admin/view_units.html', units=units)
 
@@ -176,10 +180,8 @@ def view_products():
         }))
         
         total_quantity = sum(up.get("product_quantity", 0) for up in unit_products)
-        total_sold = sum(up.get("product_sold_quantity", 0) for up in unit_products)
         
         product["total_quantity"] = total_quantity
-        product["total_sold"] = total_sold
     
     return render_template('admin/view_products.html', products=products)
 
@@ -297,29 +299,31 @@ def company_statistics():
     supervisors = user_model.get_all_supervisors()
     
     # Initialize statistics containers
-    total_profit = 0
+    total_realized_gain = 0
+    total_potential_gain = 0
     total_volume_used = 0
     total_volume_capacity = 0
     total_employees = 0
-    unit_profits = []
+    unit_financial_data = []
     product_categories = {}
     employee_performance = []
     monthly_sales = {}
     
     for unit in units:
-        # Get unit products for calculations
-        unit_products = product_model.get_products_by_unit(unit['unit_id'])
+        # Get financial summary for each unit
+        financial_summary = product_model.calculate_unit_financial_summary(unit['unit_id'])
+        total_realized_gain += financial_summary['total_realized_gain']
+        total_potential_gain += financial_summary['total_potential_gain']
         
-        # Calculate unit profit
-        unit_profit = sum(p.get('product_unit_gain', 0) for p in unit_products)
-        total_profit += unit_profit
-        
-        # Store unit profit data
-        unit_profits.append({
+        # Store unit financial data
+        unit_financial_data.append({
             'unit_name': unit['unit_name'],
             'unit_id': unit['unit_id'],
-            'profit': unit_profit
+            'financial_summary': financial_summary
         })
+        
+        # Get unit products for other calculations
+        unit_products = product_model.get_products_by_unit(unit['unit_id'])
         
         # Calculate volume usage
         unit_volume_used = 0
@@ -399,18 +403,19 @@ def company_statistics():
     # Sort employee performance by sales
     employee_performance.sort(key=lambda x: x['total_sales'], reverse=True)
     
-    # Sort unit profits
-    unit_profits.sort(key=lambda x: x['profit'], reverse=True)
+    # Sort unit financial data
+    unit_financial_data.sort(key=lambda x: x['financial_summary']['total_potential_gain'], reverse=True)
     
     # Sort monthly sales
     monthly_sales_list = sorted(monthly_sales.items(), key=lambda x: x[0])
     
     return render_template('admin/statistics.html',
                          units=units,
-                         total_profit=total_profit,
+                         total_realized_gain=total_realized_gain,
+                         total_potential_gain=total_potential_gain,
                          volume_usage_percentage=volume_usage_percentage,
                          total_employees=total_employees,
-                         unit_profits=unit_profits,
+                         unit_financial_data=unit_financial_data,
                          product_categories=product_categories,
                          employee_performance=employee_performance[:10],  # Top 10
                          monthly_sales=monthly_sales_list,

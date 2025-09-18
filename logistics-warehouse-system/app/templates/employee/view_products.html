@@ -55,7 +55,6 @@
                                 <label for="sort_by" class="form-label">Ταξινόμηση κατά</label>
                                 <select class="form-select" id="sort_by" name="sort_by">
                                     <option value="product_name" {{ 'selected' if request.args.get('sort_by') == 'product_name' }}>Όνομα Προϊόντος</option>
-                                    <option value="product_sold_quantity" {{ 'selected' if request.args.get('sort_by') == 'product_sold_quantity' }}>Πωλημένα Τεμάχια</option>
                                     <option value="product_quantity" {{ 'selected' if request.args.get('sort_by') == 'product_quantity' }}>Διαθέσιμη Ποσότητα</option>
                                 </select>
                             </div>
@@ -102,7 +101,6 @@
                                 <th>Κωδικός</th>
                                 <th>Όνομα Προϊόντος</th>
                                 <th>Διαθέσιμη Ποσότητα</th>
-                                <th>Πωλημένα Τεμάχια</th>
                                 <th>Κατηγορία</th>
                                 <th>Κατασκευαστής</th>
                                 <th>Ενέργειες</th>
@@ -115,10 +113,9 @@
                                 <td>{{ product.product_name }}</td>
                                 <td>
                                     <span class="badge {{ 'bg-success' if product.product_quantity > 10 else ('bg-warning' if product.product_quantity > 0 else 'bg-danger') }}">
-                                        {{ product.product_quantity }}
+                                        {{ product.product_quantity }} τεμ.
                                     </span>
                                 </td>
-                                <td>{{ product.get('product_sold_quantity', 0) }}</td>
                                 <td>{{ product.product_category }}</td>
                                 <td>{{ product.product_manufacturer }}</td>
                                 <td>

@@ -66,11 +66,89 @@
         <div class="stat-card">
             <div class="d-flex justify-content-between">
                 <div>
-                    <div class="stat-number {{ 'text-success' if total_profit >= 0 else 'text-danger' }}">{{ "%.2f"|format(total_profit) }}€</div>
-                    <div>Κέρδη</div>
+                    <div class="stat-number {{ 'text-success' if financial_summary.total_realized_gain >= 0 else 'text-danger' }}">{{ "%.2f"|format(financial_summary.total_realized_gain) }}€</div>
+                    <div>Πραγματοποιηθέν Κέρδος</div>
                 </div>
                 <div class="align-self-center">
                     <i class="fas fa-euro-sign fa-2x"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Detailed Financial Information -->
+<div class="row mt-4">
+    <div class="col-12">
+        <h3>Οικονομικά Στοιχεία</h3>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-lg-6">
+        <div class="card h-100">
+            <div class="card-header">
+                <h5><i class="fas fa-chart-line"></i> Ανάλυση Κερδών/Ζημιών</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-12 mb-3">
+                        <div class="d-flex justify-content-between">
+                            <span><strong>Πραγματοποιηθέν Κέρδος από Πωλήσεις:</strong></span>
+                            <span class="{{ 'text-success' if financial_summary.total_realized_gain >= 0 else 'text-danger' }}">
+                                {{ "%.2f"|format(financial_summary.total_realized_gain) }}€
+                            </span>
+                        </div>
+                    </div>
+                    <div class="col-12 mb-3">
+                        <div class="d-flex justify-content-between">
+                            <span><strong>Κόστος Τρέχοντος Αποθέματος:</strong></span>
+                            <span class="text-warning">{{ "%.2f"|format(financial_summary.total_investment) }}€</span>
+                        </div>
+                    </div>
+                    <div class="col-12 mb-3">
+                        <div class="d-flex justify-content-between">
+                            <span><strong>Πιθανά Έσοδα από Απόθεμα:</strong></span>
+                            <span class="text-info">{{ "%.2f"|format(financial_summary.total_potential_revenue) }}€</span>
+                        </div>
+                    </div>
+                    <div class="col-12 mb-3">
+                        <div class="d-flex justify-content-between">
+                            <span><strong>Πιθανό Κέρδος από Απόθεμα:</strong></span>
+                            <span class="{{ 'text-success' if financial_summary.potential_profit_from_stock >= 0 else 'text-danger' }}">
+                                {{ "%.2f"|format(financial_summary.potential_profit_from_stock) }}€
+                            </span>
+                        </div>
+                    </div>
+                    <hr>
+                    <div class="col-12">
+                        <div class="d-flex justify-content-between">
+                            <span><strong>Συνολικό Πιθανό Κέρδος:</strong></span>
+                            <span class="{{ 'text-success' if financial_summary.total_potential_gain >= 0 else 'text-danger' }} fs-5">
+                                <strong>{{ "%.2f"|format(financial_summary.total_potential_gain) }}€</strong>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-lg-6">
+        <div class="card h-100">
+            <div class="card-header">
+                <h5><i class="fas fa-info-circle"></i> Επεξήγηση Υπολογισμών</h5>
+            </div>
+            <div class="card-body">
+                <div class="alert alert-info">
+                    <h6><i class="fas fa-calculator"></i> Πώς υπολογίζονται τα κέρδη:</h6>
+                    <ul class="mb-0">
+                        <li><strong>Πραγματοποιηθέν Κέρδος:</strong> Το κέρδος από προϊόντα που έχουν ήδη πουληθεί (Τιμή Πώλησης - Τιμή Αγοράς) × Ποσότητα</li>
+                        <li><strong>Κόστος Αποθέματος:</strong> Το συνολικό κόστος αγοράς του τρέχοντος αποθέματος</li>
+                        <li><strong>Πιθανά Έσοδα:</strong> Τα έσοδα αν πουληθεί όλο το τρέχον απόθεμα</li>
+                        <li><strong>Πιθανό Κέρδος από Απόθεμα:</strong> Το κέρδος αν πουληθεί όλο το απόθεμα</li>
+                        <li><strong>Συνολικό Πιθανό Κέρδος:</strong> Πραγματοποιηθέν + Πιθανό Κέρδος</li>
+                    </ul>
                 </div>
             </div>
         </div>

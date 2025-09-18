@@ -45,8 +45,8 @@ def dashboard():
     # Get unit statistics
     unit_products = product_model.get_products_by_unit(unit_id)
     
-    # Calculate statistics
-    total_profit = sum(p.get('product_unit_gain', 0) for p in unit_products)
+    # Calculate financial summary
+    financial_summary = product_model.calculate_unit_financial_summary(unit_id)
     
     # Calculate volume usage
     total_volume_used = 0
@@ -59,7 +59,7 @@ def dashboard():
     return render_template('supervisor/dashboard.html',
                          unit_info=unit_info,
                          employees=employees,
-                         total_profit=total_profit,
+                         financial_summary=financial_summary,
                          volume_usage_percentage=volume_usage_percentage,
                          employee_count=len(employees),
                          is_admin_access=session.get('role') == 'admin')
@@ -172,8 +172,8 @@ def unit_statistics():
     employees = user_model.get_users_by_unit(unit_id)
     employees = [emp for emp in employees if emp['role'] == 'employee']
     
-    # Calculate profit/loss
-    total_profit = sum(p.get('product_unit_gain', 0) for p in unit_products)
+    # Calculate financial summary
+    financial_summary = product_model.calculate_unit_financial_summary(unit_id)
     
     # Calculate volume usage
     total_volume_used = 0
@@ -190,7 +190,7 @@ def unit_statistics():
                          unit_info=unit_info,
                          products=unit_products,
                          employees=employees,
-                         total_profit=total_profit,
+                         financial_summary=financial_summary,
                          total_volume_used=total_volume_used,
                          volume_usage_percentage=volume_usage_percentage,
                          employee_count=len(employees),

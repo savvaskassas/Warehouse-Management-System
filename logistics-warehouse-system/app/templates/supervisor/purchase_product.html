@@ -1,0 +1,185 @@
+{% extends "base.html" %}
+
+{% block title %}Αγορά Προϊόντος{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-md-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2><i class="fas fa-shopping-cart text-success"></i> Αγορά Προϊόντος</h2>
+                {% if is_admin_access %}
+                <a href="{{ url_for('supervisor.return_to_admin') }}" class="btn btn-secondary">
+                    <i class="fas fa-arrow-left"></i> Επιστροφή στο Admin
+                </a>
+                {% endif %}
+            </div>
+
+            <!-- Product Information Card -->
+            <div class="card mb-4">
+                <div class="card-header bg-info text-white">
+                    <h5 class="mb-0"><i class="fas fa-info-circle"></i> Πληροφορίες Προϊόντος</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <table class="table table-borderless">
+                                <tr>
+                                    <td><strong>Κωδικός Προϊόντος:</strong></td>
+                                    <td><span class="badge badge-primary">{{ product.product_id }}</span></td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Όνομα Προϊόντος:</strong></td>
+                                    <td>{{ product.product_name }}</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Κατηγορία:</strong></td>
+                                    <td><span class="badge badge-secondary">{{ product.product_category }}</span></td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Κατασκευαστής:</strong></td>
+                                    <td>{{ product.product_manufacturer }}</td>
+                                </tr>
+                            </table>
+                        </div>
+                        <div class="col-md-6">
+                            <table class="table table-borderless">
+                                <tr>
+                                    <td><strong>Τρέχουσα Ποσότητα:</strong></td>
+                                    <td><span class="badge badge-warning">{{ product.product_quantity }} τεμάχια</span></td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Πωλημένα Τεμάχια:</strong></td>
+                                    <td><span class="badge badge-success">{{ product.product_sold_quantity | default(0) }} τεμάχια</span></td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Τιμή Αγοράς:</strong></td>
+                                    <td><span class="text-danger font-weight-bold">{{ "%.2f"|format(product.product_purchase_price) }}€</span></td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Κέρδη Αποθήκης:</strong></td>
+                                    <td>
+                                        {% if product.product_unit_gain >= 0 %}
+                                            <span class="text-success font-weight-bold">+{{ "%.2f"|format(product.product_unit_gain) }}€</span>
+                                        {% else %}
+                                            <span class="text-danger font-weight-bold">{{ "%.2f"|format(product.product_unit_gain) }}€</span>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Purchase Form -->
+            <div class="card">
+                <div class="card-header bg-success text-white">
+                    <h5 class="mb-0"><i class="fas fa-plus-circle"></i> Αγορά Νέων Τεμαχίων</h5>
+                </div>
+                <div class="card-body">
+                    <form method="POST" class="needs-validation" novalidate>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="quantity" class="font-weight-bold">
+                                        <i class="fas fa-hashtag"></i> Ποσότητα για Αγορά *
+                                    </label>
+                                    <input type="number" class="form-control form-control-lg" id="quantity" name="quantity" 
+                                           min="1" max="10000" placeholder="Εισάγετε ποσότητα..." required>
+                                    <div class="invalid-feedback">
+                                        Παρακαλώ εισάγετε έγκυρη ποσότητα (1-10000).
+                                    </div>
+                                    <small class="form-text text-muted">
+                                        <i class="fas fa-info-circle"></i> Η ποσότητα θα προστεθεί στα υπάρχοντα τεμάχια
+                                    </small>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label class="font-weight-bold">
+                                        <i class="fas fa-calculator"></i> Υπολογισμός Κόστους
+                                    </label>
+                                    <div class="card bg-light">
+                                        <div class="card-body py-2">
+                                            <div class="row">
+                                                <div class="col-6">
+                                                    <small class="text-muted">Τιμή Μονάδας:</small><br>
+                                                    <span class="font-weight-bold">{{ "%.2f"|format(product.product_purchase_price) }}€</span>
+                                                </div>
+                                                <div class="col-6">
+                                                    <small class="text-muted">Συνολικό Κόστος:</small><br>
+                                                    <span class="font-weight-bold text-danger" id="totalCost">0.00€</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="alert alert-warning">
+                                    <i class="fas fa-exclamation-triangle"></i>
+                                    <strong>Προσοχή:</strong> Η αγορά θα μειώσει τα κέρδη της αποθήκης κατά το συνολικό κόστος αγοράς.
+                                    Τα νέα τεμάχια θα προστεθούν στην υπάρχουσα ποσότητα.
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-group text-center mt-4">
+                            <button type="submit" class="btn btn-success btn-lg mr-3">
+                                <i class="fas fa-shopping-cart"></i> Επιβεβαίωση Αγοράς
+                            </button>
+                            <a href="{{ url_for('employee.view_product_details', product_id=product.product_id) }}" 
+                               class="btn btn-secondary btn-lg">
+                                <i class="fas fa-times"></i> Ακύρωση
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Navigation Links -->
+            <div class="row mt-4">
+                <div class="col-md-12 text-center">
+                    <a href="{{ url_for('employee.view_products') }}" class="btn btn-outline-primary mr-2">
+                        <i class="fas fa-list"></i> Προβολή Όλων των Προϊόντων
+                    </a>
+                    <a href="{{ url_for('supervisor.dashboard') }}" class="btn btn-outline-info">
+                        <i class="fas fa-tachometer-alt"></i> Πίνακας Ελέγχου
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Calculate total cost dynamically
+document.getElementById('quantity').addEventListener('input', function() {
+    const quantity = parseInt(this.value) || 0;
+    const unitPrice = {{ product.product_purchase_price }};
+    const totalCost = quantity * unitPrice;
+    document.getElementById('totalCost').textContent = totalCost.toFixed(2) + '€';
+});
+
+// Bootstrap form validation
+(function() {
+    'use strict';
+    window.addEventListener('load', function() {
+        var forms = document.getElementsByClassName('needs-validation');
+        var validation = Array.prototype.filter.call(forms, function(form) {
+            form.addEventListener('submit', function(event) {
+                if (form.checkValidity() === false) {
+                    event.preventDefault();
+                    event.stopPropagation();
+                }
+                form.classList.add('was-validated');
+            }, false);
+        });
+    }, false);
+})();
+</script>
+{% endblock %}

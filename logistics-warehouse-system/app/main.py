@@ -15,6 +15,26 @@ app.secret_key = os.getenv('SECRET_KEY', 'your-secret-key-change-in-production')
 from .models import user_model, unit_model, product_model, transaction_model
 from .database import db_instance
 
+# Initialize database and admin user
+from .init_db import initialize_database, check_database_health
+
+# Initialize database on startup
+def setup_database():
+    """Setup database and admin user"""
+    print("\n" + "="*50)
+    print("🏗️  LOGISTICS WAREHOUSE SYSTEM STARTUP")
+    print("="*50)
+    
+    # Check database health
+    if check_database_health():
+        # Initialize admin and default data
+        initialize_database()
+    
+    print("="*50 + "\n")
+
+# Call setup on import
+setup_database()
+
 # Import and register blueprints
 from .admin_routes import admin_bp
 from .supervisor_routes import supervisor_bp

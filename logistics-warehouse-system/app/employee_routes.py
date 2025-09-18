@@ -66,29 +66,30 @@ def view_products():
     sort_params = None
     
     # Search filters
-    if request.args.get('product_name'):
-        search_params['product_name'] = request.args.get('product_name')
+    if request.args.get('search_name'):
+        search_params['product_name'] = request.args.get('search_name')
     
-    if request.args.get('product_id'):
-        search_params['product_id'] = request.args.get('product_id')
+    if request.args.get('search_id'):
+        search_params['product_id'] = request.args.get('search_id')
     
-    if request.args.get('quantity_min'):
+    if request.args.get('quantity_from'):
         try:
-            search_params['quantity_min'] = int(request.args.get('quantity_min'))
+            search_params['quantity_min'] = int(request.args.get('quantity_from'))
         except ValueError:
             pass
     
-    if request.args.get('quantity_max'):
+    if request.args.get('quantity_to'):
         try:
-            search_params['quantity_max'] = int(request.args.get('quantity_max'))
+            search_params['quantity_max'] = int(request.args.get('quantity_to'))
         except ValueError:
             pass
     
     # Sort parameters
-    sort_field = request.args.get('sort_field', 'product_name')
-    sort_order = int(request.args.get('sort_order', 1))  # 1 for ascending, -1 for descending
+    sort_field = request.args.get('sort_by', 'product_name')
+    sort_order_str = request.args.get('sort_order', 'asc')
+    sort_order = 1 if sort_order_str == 'asc' else -1
     
-    if sort_field in ['product_name', 'product_quantity', 'product_sold_quantity']:
+    if sort_field in ['product_name', 'product_quantity']:
         sort_params = {'field': sort_field, 'order': sort_order}
     
     # Get products

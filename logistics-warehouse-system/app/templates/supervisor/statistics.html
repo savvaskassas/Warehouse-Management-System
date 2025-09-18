@@ -1,171 +1,294 @@
 {% extends "base.html" %}
 
-{% block title %}Στατιστικά Αποθήκης - {{ unit_info.unit_name }} - Σύστημα Διαχείρισης Αποθηκών{% endblock %}
-
-{% block head %}
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-{% endblock %}
+{% block title %}Στατιστικά Αποθήκης{% endblock %}
 
 {% block content %}
-<div class="row">
-    <div class="col-12">
-        <h1><i class="fas fa-chart-line"></i> Στατιστικά Αποθήκης</h1>
-        <p class="lead">Αποθήκη: {{ unit_info.unit_name }} ({{ unit_info.unit_id }})</p>
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h1><i class="fas fa-chart-line"></i> Στατιστικά Αποθήκης</h1>
+                <div class="btn-group">
+                    {% if is_admin_access %}
+                    <a href="{{ url_for('supervisor.return_to_admin') }}" class="btn btn-secondary">
+                        <i class="fas fa-arrow-left"></i> Επιστροφή στο Admin
+                    </a>
+                    {% endif %}
+                    <a href="{{ url_for('supervisor.dashboard') }}" class="btn btn-outline-primary">
+                        <i class="fas fa-tachometer-alt"></i> Dashboard
+                    </a>
+                </div>
+            </div>
+        </div>
     </div>
+
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="alert alert-info">
+                <h5><i class="fas fa-warehouse"></i> {{ unit_info.unit_name }}</h5>
+                <p class="mb-0">Κωδικός: {{ unit_info.unit_id }} | Χωρητικότητα: {{ unit_info.unit_volume }} m³</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Statistics Cards -->
+    <div class="row mb-4">
+        <div class="col-lg-3 col-md-6 mb-3">
+            <div class="card bg-primary text-white h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h4 class="card-title">{{ products|length }}</h4>
+                            <p class="card-text">Προϊόντα</p>
+                        </div>
+                        <div class="align-self-center">
+                            <i class="fas fa-boxes fa-2x"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-lg-3 col-md-6 mb-3">
+            <div class="card bg-success text-white h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h4 class="card-title">{{ employee_count }}</h4>
+                            <p class="card-text">Υπάλληλοι</p>
+                        </div>
+                        <div class="align-self-center">
+                            <i class="fas fa-users fa-2x"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-lg-3 col-md-6 mb-3">
+            <div class="card bg-warning text-dark h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h4 class="card-title">{{ "%.1f"|format(volume_usage_percentage) }}%</h4>
+                            <p class="card-text">Χρήση Χώρου</p>
+                        </div>
+                        <div class="align-self-center">
+                            <i class="fas fa-chart-pie fa-2x"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-lg-3 col-md-6 mb-3">
+            <div class="card bg-success text-white h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h4 class="card-title">{{ "%.2f"|format(financial_summary.total_realized_gain) }}€</h4>
+                            <p class="card-text">Πραγματοποιηθέν Κέρδος</p>
+                        </div>
+                        <div class="align-self-center">
+                            <i class="fas fa-euro-sign fa-2x"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Detailed Financial Analysis -->
+    <div class="row mb-4">
+        <div class="col-lg-8">
+            <div class="card">
+                <div class="card-header">
+                    <h5><i class="fas fa-chart-line"></i> Λεπτομερής Οικονομική Ανάλυση</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-4">
+                                <h6 class="text-primary">Πραγματοποιηθέντα Αποτελέσματα</h6>
+                                <div class="d-flex justify-content-between mb-2">
+                                    <span>Κέρδος από Πωλήσεις:</span>
+                                    <strong class="{{ 'text-success' if financial_summary.total_realized_gain >= 0 else 'text-danger' }}">
+                                        {{ "%.2f"|format(financial_summary.total_realized_gain) }}€
+                                    </strong>
+                                </div>
+                            </div>
+                            
+                            <div class="mb-4">
+                                <h6 class="text-warning">Τρέχον Απόθεμα</h6>
+                                <div class="d-flex justify-content-between mb-2">
+                                    <span>Κόστος Αποθέματος:</span>
+                                    <strong class="text-warning">{{ "%.2f"|format(financial_summary.total_investment) }}€</strong>
+                                </div>
+                                <div class="d-flex justify-content-between mb-2">
+                                    <span>Πιθανά Έσοδα:</span>
+                                    <strong class="text-info">{{ "%.2f"|format(financial_summary.total_potential_revenue) }}€</strong>
+                                </div>
+                                <div class="d-flex justify-content-between mb-2">
+                                    <span>Πιθανό Κέρδος:</span>
+                                    <strong class="{{ 'text-success' if financial_summary.potential_profit_from_stock >= 0 else 'text-danger' }}">
+                                        {{ "%.2f"|format(financial_summary.potential_profit_from_stock) }}€
+                                    </strong>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <div class="alert alert-{{ 'success' if financial_summary.total_potential_gain >= 0 else 'danger' }}">
+                                <h5><i class="fas fa-calculator"></i> Συνολική Εικόνα</h5>
+                                <div class="d-flex justify-content-between mb-2">
+                                    <span><strong>Συνολικό Πιθανό Κέρδος:</strong></span>
+                                    <span class="fs-4"><strong>{{ "%.2f"|format(financial_summary.total_potential_gain) }}€</strong></span>
+                                </div>
+                                <hr>
+                                <small>
+                                    Αυτό περιλαμβάνει το πραγματοποιηθέν κέρδος από πωλήσεις 
+                                    συν το πιθανό κέρδος αν πουληθεί όλο το τρέχον απόθεμα.
+                                </small>
+                            </div>
+                            
+                            <div class="alert alert-info">
+                                <h6><i class="fas fa-info-circle"></i> Σημείωση</h6>
+                                <small>
+                                    Το κέρδος υπολογίζεται ως (Τιμή Πώλησης - Τιμή Αγοράς) × Ποσότητα.
+                                    Το "Πραγματοποιηθέν Κέρδος" είναι από ήδη πωληθέντα προϊόντα.
+                                </small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-lg-4">
+            <div class="card h-100">
+                <div class="card-header">
+                    <h5><i class="fas fa-percentage"></i> Δείκτες Απόδοσης</h5>
+                </div>
+                <div class="card-body">
+                    {% set profit_margin = (financial_summary.potential_profit_from_stock / financial_summary.total_investment * 100) if financial_summary.total_investment > 0 else 0 %}
+                    {% set roi = (financial_summary.total_realized_gain / financial_summary.total_investment * 100) if financial_summary.total_investment > 0 else 0 %}
+                    
+                    <div class="mb-3">
+                        <div class="d-flex justify-content-between">
+                            <span>Περιθώριο Κέρδους Αποθέματος:</span>
+                            <strong class="{{ 'text-success' if profit_margin >= 0 else 'text-danger' }}">
+                                {{ "%.1f"|format(profit_margin) }}%
+                            </strong>
+                        </div>
+                        <div class="progress mt-1">
+                            <div class="progress-bar {{ 'bg-success' if profit_margin >= 0 else 'bg-danger' }}" 
+                                 style="width: 50%"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <div class="d-flex justify-content-between">
+                            <span>ROI Πραγματοποιηθέν:</span>
+                            <strong class="{{ 'text-success' if roi >= 0 else 'text-danger' }}">
+                                {{ "%.1f"|format(roi) }}%
+                            </strong>
+                        </div>
+                        <div class="progress mt-1">
+                            <div class="progress-bar {{ 'bg-success' if roi >= 0 else 'bg-danger' }}" 
+                                 style="width: 50%"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Charts Row -->
+    <div class="row mb-4">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h5><i class="fas fa-chart-pie"></i> Χρήση Όγκου Αποθήκης</h5>
+                </div>
+                <div class="card-body" style="height: 300px; display: flex; align-items: center; justify-content: center;">
+                    <canvas id="volumeChart" width="250" height="250"></canvas>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h5><i class="fas fa-chart-doughnut"></i> Κατανομή Προϊόντων</h5>
+                </div>
+                <div class="card-body" style="height: 300px; display: flex; align-items: center; justify-content: center;">
+                    <canvas id="productsChart" width="250" height="250"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Products Table -->
+    {% if products %}
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5><i class="fas fa-list"></i> Προϊόντα Αποθήκης</h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-striped table-hover">
+                            <thead class="table-dark">
+                                <tr>
+                                    <th>Όνομα</th>
+                                    <th>Ποσότητα</th>
+                                    <th>Όγκος/τεμ.</th>
+                                    <th>Συν. Όγκος</th>
+                                    <th>Τιμή Αγοράς</th>
+                                    <th>Τιμή Πώλησης</th>
+                                    <th>Κέρδος/τεμ.</th>
+                                    <th>Συν. Κέρδος</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for product in products %}
+                                <tr>
+                                    <td><strong>{{ product.product_name }}</strong></td>
+                                    <td>{{ product.product_quantity }}</td>
+                                    <td>{{ product.product_volume }} m³</td>
+                                    <td>{{ "%.2f"|format(product.product_volume * product.product_quantity) }} m³</td>
+                                    <td>{{ "%.2f"|format(product.product_purchase_price) }}€</td>
+                                    <td>{{ "%.2f"|format(product.product_selling_price) }}€</td>
+                                    <td class="{{ 'text-success' if (product.product_selling_price - product.product_purchase_price) >= 0 else 'text-danger' }}">
+                                        {{ "%.2f"|format(product.product_selling_price - product.product_purchase_price) }}€
+                                    </td>
+                                    <td class="{{ 'text-success' if product.get('product_unit_gain', 0) >= 0 else 'text-danger' }}">
+                                        {{ "%.2f"|format(product.get('product_unit_gain', 0)) }}€
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% else %}
+    <div class="row">
+        <div class="col-12">
+            <div class="alert alert-info text-center">
+                <i class="fas fa-info-circle fa-3x mb-3"></i>
+                <h4>Δεν υπάρχουν προϊόντα</h4>
+                <p>Δεν υπάρχουν προϊόντα σε αυτή την αποθήκη.</p>
+            </div>
+        </div>
+    </div>
+    {% endif %}
 </div>
-
-<div class="row mb-3">
-    <div class="col-12">
-        <a href="{{ url_for('supervisor.dashboard') }}" class="btn btn-secondary">
-            <i class="fas fa-arrow-left"></i> Επιστροφή στο Dashboard
-        </a>
-    </div>
-</div>
-
-<!-- Statistics Cards -->
-<div class="row mb-4">
-    <div class="col-md-3">
-        <div class="stat-card">
-            <div class="d-flex justify-content-between">
-                <div>
-                    <div class="stat-number">{{ products|length }}</div>
-                    <div>Προϊόντα</div>
-                </div>
-                <div class="align-self-center">
-                    <i class="fas fa-box fa-2x"></i>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div class="col-md-3">
-        <div class="stat-card">
-            <div class="d-flex justify-content-between">
-                <div>
-                    <div class="stat-number">{{ employees|length }}</div>
-                    <div>Υπάλληλοι</div>
-                </div>
-                <div class="align-self-center">
-                    <i class="fas fa-users fa-2x"></i>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div class="col-md-3">
-        <div class="stat-card">
-            <div class="d-flex justify-content-between">
-                <div>
-                    <div class="stat-number">{{ "%.1f"|format(volume_usage_percentage) }}%</div>
-                    <div>Χρήση Χώρου</div>
-                </div>
-                <div class="align-self-center">
-                    <i class="fas fa-chart-pie fa-2x"></i>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div class="col-md-3">
-        <div class="stat-card">
-            <div class="d-flex justify-content-between">
-                <div>
-                    <div class="stat-number {{ 'text-success' if total_profit >= 0 else 'text-danger' }}">{{ "%.2f"|format(total_profit) }}€</div>
-                    <div>Συνολικά Κέρδη</div>
-                </div>
-                <div class="align-self-center">
-                    <i class="fas fa-euro-sign fa-2x"></i>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- Charts Row -->
-<div class="row mb-4">
-    <!-- Volume Usage Chart -->
-    <div class="col-md-6">
-        <div class="card">
-            <div class="card-header">
-                <h5><i class="fas fa-chart-pie"></i> Χρήση Όγκου Αποθήκης</h5>
-            </div>
-            <div class="card-body">
-                <canvas id="volumeChart" width="400" height="200"></canvas>
-            </div>
-        </div>
-    </div>
-
-    <!-- Products Distribution Chart -->
-    <div class="col-md-6">
-        <div class="card">
-            <div class="card-header">
-                <h5><i class="fas fa-chart-doughnut"></i> Κατανομή Προϊόντων</h5>
-            </div>
-            <div class="card-body">
-                <canvas id="productsChart" width="400" height="200"></canvas>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- Products Table -->
-{% if products %}
-<div class="row">
-    <div class="col-12">
-        <div class="card">
-            <div class="card-header">
-                <h5><i class="fas fa-list"></i> Προϊόντα Αποθήκης</h5>
-            </div>
-            <div class="card-body">
-                <div class="table-responsive">
-                    <table class="table table-striped table-hover">
-                        <thead class="table-dark">
-                            <tr>
-                                <th>Όνομα</th>
-                                <th>Ποσότητα</th>
-                                <th>Όγκος/τεμ.</th>
-                                <th>Συν. Όγκος</th>
-                                <th>Τιμή Αγοράς</th>
-                                <th>Τιμή Πώλησης</th>
-                                <th>Κέρδος/τεμ.</th>
-                                <th>Συν. Κέρδος</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for product in products %}
-                            <tr>
-                                <td><strong>{{ product.product_name }}</strong></td>
-                                <td>{{ product.product_quantity }}</td>
-                                <td>{{ product.product_volume }} m³</td>
-                                <td>{{ "%.2f"|format(product.product_volume * product.product_quantity) }} m³</td>
-                                <td>{{ "%.2f"|format(product.product_purchase_price) }}€</td>
-                                <td>{{ "%.2f"|format(product.product_selling_price) }}€</td>
-                                <td class="{{ 'text-success' if (product.product_selling_price - product.product_purchase_price) >= 0 else 'text-danger' }}">
-                                    {{ "%.2f"|format(product.product_selling_price - product.product_purchase_price) }}€
-                                </td>
-                                <td class="{{ 'text-success' if product.get('product_unit_gain', 0) >= 0 else 'text-danger' }}">
-                                    {{ "%.2f"|format(product.get('product_unit_gain', 0)) }}€
-                                </td>
-                            </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-{% else %}
-<div class="row">
-    <div class="col-12">
-        <div class="alert alert-info text-center">
-            <i class="fas fa-info-circle fa-3x mb-3"></i>
-            <h4>Δεν υπάρχουν προϊόντα</h4>
-            <p>Δεν υπάρχουν προϊόντα σε αυτή την αποθήκη.</p>
-        </div>
-    </div>
-</div>
-{% endif %}
 
 <script type="application/json" id="unit-data">
 {
@@ -183,84 +306,130 @@
 </script>
 
 <script>
-// Get data from JSON script
-const unitData = JSON.parse(document.getElementById('unit-data').textContent);
-const totalVolume = unitData.totalVolume;
-const usedVolume = unitData.usedVolume;
-const freeVolume = totalVolume - usedVolume;
+// Wait for Chart.js to load
+document.addEventListener('DOMContentLoaded', function() {
+    // Get data from JSON script
+    const unitData = JSON.parse(document.getElementById('unit-data').textContent);
+    const totalVolume = unitData.totalVolume;
+    const usedVolume = unitData.usedVolume;
+    const freeVolume = totalVolume - usedVolume;
 
-// Volume Usage Pie Chart
-const volumeCtx = document.getElementById('volumeChart').getContext('2d');
+    // Volume Usage Pie Chart
+    const volumeCtx = document.getElementById('volumeChart').getContext('2d');
 
-new Chart(volumeCtx, {
-    type: 'pie',
-    data: {
-        labels: ['Χρησιμοποιημένος Όγκος', 'Ελεύθερος Όγκος'],
-        datasets: [{
-            data: [usedVolume, freeVolume],
-            backgroundColor: ['#e74c3c', '#2ecc71'],
-            borderWidth: 2,
-            borderColor: '#fff'
-        }]
-    },
-    options: {
-        responsive: true,
-        plugins: {
-            legend: {
-                position: 'bottom'
+    if (usedVolume > 0) {
+        new Chart(volumeCtx, {
+            type: 'pie',
+            data: {
+                labels: ['Χρησιμοποιημένος Όγκος', 'Ελεύθερος Όγκος'],
+                datasets: [{
+                    data: [usedVolume, Math.max(0, freeVolume)],
+                    backgroundColor: ['#e74c3c', '#2ecc71'],
+                    borderWidth: 2,
+                    borderColor: '#fff'
+                }]
             },
-            tooltip: {
-                callbacks: {
-                    label: function(context) {
-                        const percentage = ((context.parsed / totalVolume) * 100).toFixed(1);
-                        return context.label + ': ' + context.parsed.toFixed(2) + ' m³ (' + percentage + '%)';
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        position: 'bottom'
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                const percentage = ((context.parsed / totalVolume) * 100).toFixed(1);
+                                return context.label + ': ' + context.parsed.toFixed(2) + ' m³ (' + percentage + '%)';
+                            }
+                        }
                     }
                 }
             }
-        }
+        });
+    } else {
+        // Show message when no volume is used
+        volumeCtx.canvas.style.display = 'none';
+        const container = volumeCtx.canvas.parentElement;
+        container.innerHTML = `
+            <div class="text-center text-muted py-4">
+                <i class="fas fa-chart-pie fa-3x mb-3 opacity-50"></i>
+                <h5>Δεν υπάρχει χρησιμοποιημένος όγκος</h5>
+                <p>Όλος ο όγκος της αποθήκης (${totalVolume} m³) είναι ελεύθερος.</p>
+                <small class="text-muted">Προσθέστε προϊόντα για να δείτε τη χρήση όγκου.</small>
+            </div>
+        `;
     }
-});
 
-// Products Distribution Chart
-if (unitData.products && unitData.products.length > 0) {
-    const productsCtx = document.getElementById('productsChart').getContext('2d');
-    const productNames = unitData.products.map(p => p.name);
-    const productQuantities = unitData.products.map(p => p.quantity);
+    // Products Distribution Chart
+    if (unitData.products && unitData.products.length > 0) {
+        const productsCtx = document.getElementById('productsChart').getContext('2d');
+        
+        // Filter products with quantity > 0
+        const nonZeroProducts = unitData.products.filter(p => p.quantity > 0);
+        
+        if (nonZeroProducts.length > 0) {
+            const productNames = nonZeroProducts.map(p => p.name);
+            const productQuantities = nonZeroProducts.map(p => p.quantity);
 
-    const colors = [
-        '#3498db', '#e74c3c', '#2ecc71', '#f39c12', '#9b59b6',
-        '#1abc9c', '#34495e', '#e67e22', '#95a5a6', '#f1c40f'
-    ];
+            const colors = [
+                '#3498db', '#e74c3c', '#2ecc71', '#f39c12', '#9b59b6',
+                '#1abc9c', '#34495e', '#e67e22', '#95a5a6', '#f1c40f'
+            ];
 
-new Chart(productsCtx, {
-    type: 'doughnut',
-    data: {
-        labels: productNames,
-        datasets: [{
-            data: productQuantities,
-            backgroundColor: colors.slice(0, productNames.length),
-            borderWidth: 2,
-            borderColor: '#fff'
-        }]
-    },
-    options: {
-        responsive: true,
-        plugins: {
-            legend: {
-                position: 'bottom'
-            },
-            tooltip: {
-                callbacks: {
-                    label: function(context) {
-                        const total = context.dataset.data.reduce((a, b) => a + b, 0);
-                        const percentage = ((context.parsed / total) * 100).toFixed(1);
-                        return context.label + ': ' + context.parsed + ' τεμάχια (' + percentage + '%)';
+            new Chart(productsCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: productNames,
+                    datasets: [{
+                        data: productQuantities,
+                        backgroundColor: colors.slice(0, productNames.length),
+                        borderWidth: 2,
+                        borderColor: '#fff'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            position: 'bottom'
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    const total = productQuantities.reduce((a, b) => a + b, 0);
+                                    const percentage = ((context.parsed / total) * 100).toFixed(1);
+                                    return context.label + ': ' + context.parsed + ' τεμ. (' + percentage + '%)';
+                                }
+                            }
+                        }
                     }
                 }
-            }
+            });
+        } else {
+            // Show message when no products have quantities
+            productsCtx.canvas.style.display = 'none';
+            const container = productsCtx.canvas.parentElement;
+            container.innerHTML = `
+                <div class="text-center text-muted py-4">
+                    <i class="fas fa-chart-pie fa-3x mb-3 opacity-50"></i>
+                    <h5>Δεν υπάρχουν προϊόντα με ποσότητα</h5>
+                    <p>Προσθέστε προϊόντα στην αποθήκη για να δείτε την κατανομή.</p>
+                </div>
+            `;
         }
+    } else {
+        // Show message when no products exist
+        const productsCtx = document.getElementById('productsChart').getContext('2d');
+        productsCtx.canvas.style.display = 'none';
+        const container = productsCtx.canvas.parentElement;
+        container.innerHTML = `
+            <div class="text-center text-muted py-4">
+                <i class="fas fa-chart-pie fa-3x mb-3 opacity-50"></i>
+                <h5>Δεν υπάρχουν προϊόντα</h5>
+                <p>Προσθέστε προϊόντα στην αποθήκη για να δείτε την κατανομή.</p>
+            </div>
+        `;
     }
 });
-}
 </script>
 {% endblock %}

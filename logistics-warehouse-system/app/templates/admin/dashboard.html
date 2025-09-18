@@ -77,10 +77,20 @@
                 <h5><i class="fas fa-euro-sign"></i> Συνολικά Κέρδη/Ζημία Εταιρείας</h5>
             </div>
             <div class="card-body text-center">
-                <h2 class="{{ 'text-success' if total_profit >= 0 else 'text-danger' }}">
-                    {{ "%.2f"|format(total_profit) }} €
-                </h2>
-                <p class="text-muted">{{ 'Κέρδος' if total_profit >= 0 else 'Ζημία' }}</p>
+                <div class="row">
+                    <div class="col-md-6">
+                        <h3 class="{{ 'text-success' if total_realized_gain >= 0 else 'text-danger' }}">
+                            {{ "%.2f"|format(total_realized_gain) }} €
+                        </h3>
+                        <p class="text-muted">Πραγματοποιηθέν Κέρδος</p>
+                    </div>
+                    <div class="col-md-6">
+                        <h3 class="{{ 'text-success' if total_potential_gain >= 0 else 'text-danger' }}">
+                            {{ "%.2f"|format(total_potential_gain) }} €
+                        </h3>
+                        <p class="text-muted">Συνολικό Πιθανό Κέρδος</p>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -153,8 +163,8 @@
                         <td><strong>{{ unit.unit_id }}</strong></td>
                         <td>{{ unit.unit_name }}</td>
                         <td>{{ unit.unit_volume }} m³</td>
-                        <td class="{{ 'text-success' if unit.get('total_profit', 0) >= 0 else 'text-danger' }}">
-                            {{ "%.2f"|format(unit.get('total_profit', 0)) }} €
+                        <td class="{{ 'text-success' if unit.financial_summary.total_realized_gain >= 0 else 'text-danger' }}">
+                            {{ "%.2f"|format(unit.financial_summary.total_realized_gain) }} €
                         </td>
                         <td>
                             <a href="{{ url_for('admin.access_unit_as_supervisor', unit_id=unit.unit_id) }}" 

@@ -158,9 +158,7 @@ class ProductModel:
             "product_category": product_category,
             "product_purchase_price": product_purchase_price,
             "product_selling_price": product_selling_price,
-            "product_manufacturer": product_manufacturer,
-            "created_at": datetime.utcnow(),
-            "updated_at": datetime.utcnow()
+            "product_manufacturer": product_manufacturer
         }
         
         result = self.master_collection.insert_one(product_data)
@@ -178,9 +176,7 @@ class ProductModel:
             "unit_id": unit_id,
             "product_id": product_id,
             "product_quantity": quantity,
-            "product_sold_quantity": 0,
-            "product_unit_gain": 0.0,
-            "last_updated": datetime.utcnow()
+            "product_unit_gain": 0.0
         }
         
         # Use upsert to avoid duplicates
@@ -266,31 +262,60 @@ class ProductModel:
         
         # Calculate new values
         new_quantity = unit_product["product_quantity"]
-        new_sold_quantity = unit_product["product_sold_quantity"]
         new_gain = unit_product["product_unit_gain"]
         
         if transaction_type == "sale":
             if new_quantity >= quantity_change:
                 new_quantity -= quantity_change
-                new_sold_quantity += quantity_change
-                new_gain += quantity_change * master_product["product_selling_price"]
+                # Κέρδος = (Τιμή Πώλησης - Τιμή Αγοράς) * Ποσότητα
+                profit_per_unit = master_product["product_selling_price"] - master_product["product_purchase_price"]
+                new_gain += quantity_change * profit_per_unit
             else:
                 return False  # Not enough stock
         
         elif transaction_type == "purchase":
             new_quantity += quantity_change
-            new_gain -= quantity_change * master_product["product_purchase_price"]
+            # Δεν αλλάζουμε το gain στην αγορά - το κέρδος υπολογίζεται μόνο στην πώληση
         
         # Update database
         return self.unit_products_collection.update_one(
             {"unit_id": unit_id, "product_id": product_id},
             {"$set": {
                 "product_quantity": new_quantity,
-                "product_sold_quantity": new_sold_quantity,
-                "product_unit_gain": new_gain,
-                "last_updated": datetime.utcnow()
+                "product_unit_gain": new_gain
             }}
         )
+    
+    def calculate_unit_financial_summary(self, unit_id):
+        """Calculate detailed financial summary for a unit"""
+        unit_products = self.get_products_by_unit(unit_id)
+        
+        total_gain = 0.0
+        total_investment = 0.0  # Κόστος αποθέματος
+        total_potential_revenue = 0.0  # Πιθανά έσοδα αν πουληθεί όλο το απόθεμα
+        
+        for product in unit_products:
+            # Συνολικό κέρδος από πωλήσεις
+            total_gain += product.get("product_unit_gain", 0.0)
+            
+            # Κόστος τρέχοντος αποθέματος
+            current_stock_cost = product["product_quantity"] * product["product_purchase_price"]
+            total_investment += current_stock_cost
+            
+            # Πιθανά έσοδα από τρέχον απόθεμα
+            potential_revenue = product["product_quantity"] * product["product_selling_price"]
+            total_potential_revenue += potential_revenue
+        
+        # Πιθανό κέρδος από τρέχον απόθεμα
+        potential_profit_from_stock = total_potential_revenue - total_investment
+        
+        return {
+            "total_realized_gain": total_gain,  # Πραγματοποιηθέν κέρδος από πωλήσεις
+            "total_investment": total_investment,  # Κόστος τρέχοντος αποθέματος
+            "total_potential_revenue": total_potential_revenue,  # Πιθανά έσοδα
+            "potential_profit_from_stock": potential_profit_from_stock,  # Πιθανό κέρδος από απόθεμα
+            "total_potential_gain": total_gain + potential_profit_from_stock  # Συνολικό πιθανό κέρδος
+        }
 
 class TransactionModel:
     def __init__(self):

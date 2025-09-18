@@ -53,11 +53,11 @@
         </div>
         
         <div class="col-md-3">
-            <div class="stat-card {{ 'bg-success' if total_profit >= 0 else 'bg-danger' }}">
+            <div class="stat-card {{ 'bg-success' if total_realized_gain >= 0 else 'bg-danger' }}">
                 <div class="d-flex justify-content-between">
                     <div>
-                        <div class="stat-number">{{ "%.2f"|format(total_profit) }} €</div>
-                        <div>{{ 'Συνολικό Κέρδος' if total_profit >= 0 else 'Συνολική Ζημία' }}</div>
+                        <div class="stat-number">{{ "%.2f"|format(total_realized_gain) }} €</div>
+                        <div>{{ 'Πραγματοποιηθέν Κέρδος' if total_realized_gain >= 0 else 'Πραγματοποιηθείσα Ζημία' }}</div>
                     </div>
                     <div class="align-self-center">
                         <i class="fas fa-euro-sign fa-2x"></i>
@@ -185,18 +185,18 @@
 {% block scripts %}
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
-// Unit Profits Chart
-{% if unit_profits %}
+// Unit Financial Chart
+{% if unit_financial_data %}
 const unitProfitsCtx = document.getElementById('unitProfitsChart').getContext('2d');
 const unitProfitsChart = new Chart(unitProfitsCtx, {
     type: 'bar',
     data: {
-        labels: [{% for unit in unit_profits %}'{{ unit.unit_name }}'{{ ',' if not loop.last }}{% endfor %}],
+        labels: [{% for unit in unit_financial_data %}'{{ unit.unit_name }}'{{ ',' if not loop.last }}{% endfor %}],
         datasets: [{
-            label: 'Κέρδη (€)',
-            data: [{% for unit in unit_profits %}{{ unit.profit }}{{ ',' if not loop.last }}{% endfor %}],
-            backgroundColor: [{% for unit in unit_profits %}{{ "'rgba(40, 167, 69, 0.8)'" if unit.profit >= 0 else "'rgba(220, 53, 69, 0.8)'" }}{{ ',' if not loop.last }}{% endfor %}],
-            borderColor: [{% for unit in unit_profits %}{{ "'rgba(40, 167, 69, 1)'" if unit.profit >= 0 else "'rgba(220, 53, 69, 1)'" }}{{ ',' if not loop.last }}{% endfor %}],
+            label: 'Πραγματοποιηθέν Κέρδος (€)',
+            data: [{% for unit in unit_financial_data %}{{ unit.financial_summary.total_realized_gain }}{{ ',' if not loop.last }}{% endfor %}],
+            backgroundColor: [{% for unit in unit_financial_data %}{{ "'rgba(40, 167, 69, 0.8)'" if unit.financial_summary.total_realized_gain >= 0 else "'rgba(220, 53, 69, 0.8)'" }}{{ ',' if not loop.last }}{% endfor %}],
+            borderColor: [{% for unit in unit_financial_data %}{{ "'rgba(40, 167, 69, 1)'" if unit.financial_summary.total_realized_gain >= 0 else "'rgba(220, 53, 69, 1)'" }}{{ ',' if not loop.last }}{% endfor %}],
             borderWidth: 1
         }]
     },

@@ -1,0 +1,220 @@
+{% extends "base.html" %}
+
+{% block title %}{{ product.product_name }} - Σύστημα Διαχείρισης Αποθηκών{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h1><i class="fas fa-box"></i> Λεπτομέρειες Προϊόντος</h1>
+            <div class="btn-group">
+                <a href="{{ url_for('employee.view_products') }}" class="btn btn-secondary">
+                    <i class="fas fa-arrow-left"></i> Επιστροφή στα Προϊόντα
+                </a>
+                {% if is_supervisor %}
+                <a href="{{ url_for('supervisor.purchase_product', product_id=product.product_id) }}" class="btn btn-info">
+                    <i class="fas fa-shopping-cart"></i> Αγορά
+                </a>
+                {% endif %}
+                <a href="{{ url_for('employee.sell_product', product_id=product.product_id) }}" class="btn btn-success">
+                    <i class="fas fa-cash-register"></i> Πώληση
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <!-- Product Information -->
+    <div class="col-lg-8">
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5><i class="fas fa-info-circle"></i> Πληροφορίες Προϊόντος</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <table class="table table-borderless">
+                            <tbody>
+                                <tr>
+                                    <td><strong>Όνομα:</strong></td>
+                                    <td>{{ product.product_name }}</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Κωδικός:</strong></td>
+                                    <td><span class="badge bg-primary">{{ product.product_id }}</span></td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Κατηγορία:</strong></td>
+                                    <td>{{ product.product_category }}</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Όγκος:</strong></td>
+                                    <td>{{ product.product_volume }} m³</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="col-md-6">
+                        <table class="table table-borderless">
+                            <tbody>
+                                <tr>
+                                    <td><strong>Τιμή Αγοράς:</strong></td>
+                                    <td><span class="badge bg-warning">{{ "%.2f"|format(product.product_purchase_price) }}€</span></td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Τιμή Πώλησης:</strong></td>
+                                    <td><span class="badge bg-success">{{ "%.2f"|format(product.product_selling_price) }}€</span></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Transactions -->
+        <div class="card">
+            <div class="card-header">
+                <h5><i class="fas fa-history"></i> Πρόσφατες Συναλλαγές</h5>
+            </div>
+            <div class="card-body">
+                {% if recent_transactions %}
+                <div class="table-responsive">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Ημερομηνία</th>
+                                <th>Τύπος</th>
+                                <th>Ποσότητα</th>
+                                <th>Τιμή</th>
+                                <th>Χρήστης</th>
+                                <th>Σημειώσεις</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for transaction in recent_transactions %}
+                            <tr>
+                                <td>{{ transaction.timestamp.strftime('%d/%m/%Y %H:%M') }}</td>
+                                <td>
+                                    {% if transaction.transaction_type == 'sale' %}
+                                        <span class="badge bg-success">Πώληση</span>
+                                    {% elif transaction.transaction_type == 'purchase' %}
+                                        <span class="badge bg-info">Αγορά</span>
+                                    {% else %}
+                                        <span class="badge bg-secondary">{{ transaction.transaction_type }}</span>
+                                    {% endif %}
+                                </td>
+                                <td>{{ transaction.quantity }}</td>
+                                <td>{{ "%.2f"|format(transaction.unit_price) }}€</td>
+                                <td>{{ transaction.performed_by }}</td>
+                                <td>{{ transaction.notes or '-' }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <div class="alert alert-info">
+                    <i class="fas fa-info-circle"></i> Δεν υπάρχουν συναλλαγές για αυτό το προϊόν.
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Stock Information -->
+    <div class="col-lg-4">
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5><i class="fas fa-warehouse"></i> Στοιχεία Αποθέματος</h5>
+            </div>
+            <div class="card-body">
+                <div class="text-center">
+                    <div class="mb-3">
+                        <h3 class="text-primary">{{ product.product_quantity }}</h3>
+                        <p class="text-muted mb-0">Διαθέσιμα Τεμάχια</p>
+                    </div>
+
+                    <div class="mb-3">
+                        <h4 class="{{ 'text-success' if product.product_unit_gain >= 0 else 'text-danger' }}">
+                            {{ "%.2f"|format(product.product_unit_gain) }}€
+                        </h4>
+                        <p class="text-muted mb-0">
+                            {% if product.product_unit_gain >= 0 %}
+                                Κέρδος από Προϊόν
+                            {% else %}
+                                Ζημία από Προϊόν
+                            {% endif %}
+                        </p>
+                    </div>
+
+                    <hr>
+
+                    <div class="mb-3">
+                        <h5>{{ "%.2f"|format(product.product_quantity * product.product_volume) }} m³</h5>
+                        <p class="text-muted mb-0">Συνολικός Όγκος</p>
+                    </div>
+
+                    <div class="mb-3">
+                        <h5>{{ "%.2f"|format(product.product_quantity * product.product_purchase_price) }}€</h5>
+                        <p class="text-muted mb-0">Αξία Αποθέματος</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Stock Status -->
+        <div class="card">
+            <div class="card-header">
+                <h5><i class="fas fa-chart-bar"></i> Κατάσταση Αποθέματος</h5>
+            </div>
+            <div class="card-body">
+                {% set stock_level = product.product_quantity %}
+                {% if stock_level == 0 %}
+                    <div class="alert alert-danger">
+                        <i class="fas fa-exclamation-triangle"></i> 
+                        <strong>Εξαντλημένο</strong><br>
+                        Δεν υπάρχει διαθέσιμο απόθεμα!
+                    </div>
+                {% elif stock_level <= 5 %}
+                    <div class="alert alert-warning">
+                        <i class="fas fa-exclamation-circle"></i> 
+                        <strong>Χαμηλό Απόθεμα</strong><br>
+                        Μόνο {{ stock_level }} τεμάχια διαθέσιμα!
+                    </div>
+                {% elif stock_level <= 10 %}
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle"></i> 
+                        <strong>Μέτριο Απόθεμα</strong><br>
+                        {{ stock_level }} τεμάχια διαθέσιμα.
+                    </div>
+                {% else %}
+                    <div class="alert alert-success">
+                        <i class="fas fa-check-circle"></i> 
+                        <strong>Καλό Απόθεμα</strong><br>
+                        {{ stock_level }} τεμάχια διαθέσιμα.
+                    </div>
+                {% endif %}
+
+                <!-- Stock Actions -->
+                <div class="d-grid gap-2 mt-3">
+                    {% if stock_level > 0 %}
+                    <a href="{{ url_for('employee.sell_product', product_id=product.product_id) }}" 
+                       class="btn btn-success">
+                        <i class="fas fa-cash-register"></i> Πώληση
+                    </a>
+                    {% endif %}
+                    
+                    {% if is_supervisor %}
+                    <a href="{{ url_for('supervisor.purchase_product', product_id=product.product_id) }}" 
+                       class="btn btn-info">
+                        <i class="fas fa-shopping-cart"></i> Αγορά Νέων
+                    </a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

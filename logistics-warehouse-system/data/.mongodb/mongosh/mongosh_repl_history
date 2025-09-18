@@ -1,0 +1,15 @@
+"
+    print(f'Master Product: {p}')
+for p in products:
+products = list(db_instance.db.products_master.find())
+print('\n=== Products Master ===')
+    print(f'Product: {up}')
+for up in unit_products:
+unit_products = list(db_instance.db.unit_products.find({'unit_id': '001'}))
+print('\n=== Unit Products for unit 001 ===')
+    print(f'Unit: {unit}')
+for unit in units:
+units = list(db_instance.db.units.find())
+print('=== Units ===')
+from app.database import db_instance
+cd "c:\Users\savva\OneDrive\Υπολογιστής\Εργασία Πληροφοριακα\logistics-warehouse-system"; docker exec logistics-warehouse-system-web-1 python -c "
