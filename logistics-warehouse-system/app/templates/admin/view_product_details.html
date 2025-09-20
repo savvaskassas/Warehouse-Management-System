@@ -1,0 +1,233 @@
+{% extends "base.html" %}
+
+{% block title %}Στοιχεία Προϊόντος - {{ product.product_name }}{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2><i class="fas fa-box"></i> Στοιχεία Προϊόντος</h2>
+        <div>
+            <a href="{{ url_for('admin.edit_product', product_id=product.product_id) }}" class="btn btn-warning">
+                <i class="fas fa-edit"></i> Επεξεργασία
+            </a>
+            <a href="{{ url_for('admin.view_products') }}" class="btn btn-secondary">
+                <i class="fas fa-arrow-left"></i> Επιστροφή
+            </a>
+        </div>
+    </div>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <div class="alert alert-{{ 'danger' if category == 'error' else 'success' }} alert-dismissible fade show" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+
+    <div class="row">
+        <!-- Basic Product Information -->
+        <div class="col-md-6">
+            <div class="card mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h5><i class="fas fa-info-circle"></i> Βασικά Στοιχεία</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row mb-3">
+                        <div class="col-sm-4"><strong>Κωδικός:</strong></div>
+                        <div class="col-sm-8"><span class="badge bg-primary">{{ product.product_id }}</span></div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-sm-4"><strong>Όνομα:</strong></div>
+                        <div class="col-sm-8">{{ product.product_name }}</div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-sm-4"><strong>Κατηγορία:</strong></div>
+                        <div class="col-sm-8">{{ product.product_category }}</div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-sm-4"><strong>Κατασκευαστής:</strong></div>
+                        <div class="col-sm-8">{{ product.product_manufacturer }}</div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-sm-4"><strong>Βάρος:</strong></div>
+                        <div class="col-sm-8">{{ "{:.2f}".format(product.product_weight) }} kg</div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-sm-4"><strong>Όγκος:</strong></div>
+                        <div class="col-sm-8">{{ "{:.3f}".format(product.product_volume) }} m³</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Financial Information -->
+        <div class="col-md-6">
+            <div class="card mb-4">
+                <div class="card-header bg-success text-white">
+                    <h5><i class="fas fa-euro-sign"></i> Οικονομικά Στοιχεία</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row mb-3">
+                        <div class="col-sm-6"><strong>Τιμή Αγοράς:</strong></div>
+                        <div class="col-sm-6"><span class="text-danger">{{ "{:.2f}".format(product.product_purchase_price) }}€</span></div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-sm-6"><strong>Τιμή Πώλησης:</strong></div>
+                        <div class="col-sm-6"><span class="text-success">{{ "{:.2f}".format(product.product_selling_price) }}€</span></div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-sm-6"><strong>Κέρδος ανά τεμάχιο:</strong></div>
+                        <div class="col-sm-6">
+                            {% set profit_per_unit = product.product_selling_price - product.product_purchase_price %}
+                            <span class="{{ 'text-success' if profit_per_unit >= 0 else 'text-danger' }}">
+                                {{ "{:.2f}".format(profit_per_unit) }}€
+                            </span>
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-sm-6"><strong>Συνολικό Κέρδος:</strong></div>
+                        <div class="col-sm-6">
+                            <span class="{{ 'text-success' if total_gain >= 0 else 'text-danger' }}">
+                                {{ "{:.2f}".format(total_gain) }}€
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Stock per Unit -->
+    <div class="card mb-4">
+        <div class="card-header bg-info text-white">
+            <h5><i class="fas fa-warehouse"></i> Απόθεμα ανά Αποθήκη</h5>
+        </div>
+        <div class="card-body">
+            {% if unit_data %}
+                <div class="table-responsive">
+                    <table class="table table-striped table-hover">
+                        <thead class="table-dark">
+                            <tr>
+                                <th>Αποθήκη</th>
+                                <th>Ποσότητα</th>
+                                <th>Αξία Αποθέματος</th>
+                                <th>Δυνητικά Έσοδα</th>
+                                <th>Κέρδος από Πωλήσεις</th>
+                                <th>Ενέργειες</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for unit in unit_data %}
+                            <tr>
+                                <td><strong>{{ unit.unit_name }}</strong></td>
+                                <td>
+                                    <span class="badge {{ 'bg-success' if unit.quantity > 0 else 'bg-secondary' }}">
+                                        {{ unit.quantity }} τεμ.
+                                    </span>
+                                </td>
+                                <td>{{ "{:.2f}".format(unit.value) }}€</td>
+                                <td><span class="text-info">{{ "{:.2f}".format(unit.potential_revenue) }}€</span></td>
+                                <td>
+                                    <span class="{{ 'text-success' if unit.gain >= 0 else 'text-danger' }}">
+                                        {{ "{:.2f}".format(unit.gain) }}€
+                                    </span>
+                                </td>
+                                <td>
+                                    <a href="{{ url_for('admin.access_unit_as_supervisor', unit_id=unit.unit_id) }}" 
+                                       class="btn btn-sm btn-outline-primary" title="Διαχείριση στην Αποθήκη">
+                                        <i class="fas fa-cog"></i>
+                                    </a>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                            <!-- Summary Row -->
+                            <tr class="table-warning">
+                                <td><strong>ΣΥΝΟΛΟ</strong></td>
+                                <td>
+                                    <span class="badge bg-primary">
+                                        {{ total_quantity }} τεμ.
+                                    </span>
+                                </td>
+                                <td><strong>{{ "{:.2f}".format(unit_data|sum(attribute='value')) }}€</strong></td>
+                                <td><strong><span class="text-info">{{ "{:.2f}".format(unit_data|sum(attribute='potential_revenue')) }}€</span></strong></td>
+                                <td>
+                                    <strong>
+                                        <span class="{{ 'text-success' if total_gain >= 0 else 'text-danger' }}">
+                                            {{ "{:.2f}".format(total_gain) }}€
+                                        </span>
+                                    </strong>
+                                </td>
+                                <td></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            {% else %}
+                <div class="text-center text-muted">
+                    <i class="fas fa-box-open fa-3x mb-3"></i>
+                    <p>Δεν υπάρχει απόθεμα σε καμία αποθήκη</p>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Recent Transactions -->
+    <div class="card">
+        <div class="card-header bg-warning text-dark">
+            <h5><i class="fas fa-history"></i> Πρόσφατες Συναλλαγές</h5>
+        </div>
+        <div class="card-body">
+            {% if recent_transactions %}
+                <div class="table-responsive">
+                    <table class="table table-striped table-hover">
+                        <thead class="table-dark">
+                            <tr>
+                                <th>Ημερομηνία</th>
+                                <th>Αποθήκη</th>
+                                <th>Τύπος</th>
+                                <th>Ποσότητα</th>
+                                <th>Τιμή Μονάδας</th>
+                                <th>Συνολικό Ποσό</th>
+                                <th>Χρήστης</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for transaction in recent_transactions %}
+                            <tr>
+                                <td>{{ transaction.timestamp.strftime('%d/%m/%Y %H:%M') }}</td>
+                                <td>{{ transaction.unit_name }}</td>
+                                <td>
+                                    {% if transaction.transaction_type == 'sale' %}
+                                        <span class="badge bg-success">Πώληση</span>
+                                    {% elif transaction.transaction_type == 'purchase' %}
+                                        <span class="badge bg-primary">Αγορά</span>
+                                    {% else %}
+                                        <span class="badge bg-secondary">{{ transaction.transaction_type }}</span>
+                                    {% endif %}
+                                </td>
+                                <td>{{ transaction.quantity }}</td>
+                                <td>{{ "{:.2f}".format(transaction.unit_price) }}€</td>
+                                <td>
+                                    <span class="{{ 'text-success' if transaction.transaction_type == 'sale' else 'text-primary' }}">
+                                        {{ "{:.2f}".format(transaction.total_amount) }}€
+                                    </span>
+                                </td>
+                                <td>{{ transaction.performed_by }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% else %}
+                <div class="text-center text-muted">
+                    <i class="fas fa-receipt fa-3x mb-3"></i>
+                    <p>Δεν υπάρχουν συναλλαγές για αυτό το προϊόν</p>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

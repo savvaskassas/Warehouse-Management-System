@@ -185,6 +185,145 @@ def view_products():
     
     return render_template('admin/view_products.html', products=products)
 
+@admin_bp.route('/delete_product/<product_id>')
+def delete_product(product_id):
+    """Delete product from all units and master catalog"""
+    check = require_admin()
+    if check: return check
+    
+    # Get product name for flash message
+    product = db_instance.db.products_master.find_one({"product_id": product_id})
+    if not product:
+        flash('Το προϊόν δεν βρέθηκε!', 'error')
+        return redirect(url_for('admin.view_products'))
+    
+    product_name = product['product_name']
+    
+    # Check if product has stock in any unit
+    unit_products = list(db_instance.db.unit_products.find({
+        "product_id": product_id,
+        "product_quantity": {"$gt": 0}
+    }))
+    
+    if unit_products:
+        units_with_stock = []
+        for up in unit_products:
+            unit = unit_model.get_unit_by_id(up['unit_id'])
+            if unit:
+                units_with_stock.append(f"{unit['unit_name']} ({up['product_quantity']} τεμ.)")
+        
+        flash(f'Δεν μπορείτε να διαγράψετε το προϊόν "{product_name}" γιατί υπάρχει απόθεμα στις αποθήκες: {", ".join(units_with_stock)}', 'error')
+        return redirect(url_for('admin.view_products'))
+    
+    # Delete product from all units and transactions
+    db_instance.db.unit_products.delete_many({"product_id": product_id})
+    db_instance.db.transactions.delete_many({"product_id": product_id})
+    
+    # Delete from master catalog
+    db_instance.db.products_master.delete_one({"product_id": product_id})
+    
+    flash(f'Το προϊόν "{product_name}" διαγράφηκε επιτυχώς από όλες τις αποθήκες!', 'success')
+    return redirect(url_for('admin.view_products'))
+
+@admin_bp.route('/view_product/<product_id>')
+def view_product_details(product_id):
+    """View detailed product information"""
+    check = require_admin()
+    if check: return check
+    
+    # Get master product
+    product = db_instance.db.products_master.find_one({"product_id": product_id})
+    if not product:
+        flash('Το προϊόν δεν βρέθηκε!', 'error')
+        return redirect(url_for('admin.view_products'))
+    
+    # Get product data from all units
+    unit_products = list(db_instance.db.unit_products.find({"product_id": product_id}))
+    
+    # Enrich with unit names and financial data
+    unit_data = []
+    total_quantity = 0
+    total_gain = 0
+    
+    for up in unit_products:
+        unit = unit_model.get_unit_by_id(up['unit_id'])
+        if unit:
+            unit_info = {
+                'unit_id': up['unit_id'],
+                'unit_name': unit['unit_name'],
+                'quantity': up.get('product_quantity', 0),
+                'gain': up.get('product_unit_gain', 0),
+                'value': up.get('product_quantity', 0) * product.get('product_purchase_price', 0),
+                'potential_revenue': up.get('product_quantity', 0) * product.get('product_selling_price', 0)
+            }
+            unit_data.append(unit_info)
+            total_quantity += unit_info['quantity']
+            total_gain += unit_info['gain']
+    
+    # Get recent transactions for this product
+    recent_transactions = list(db_instance.db.transactions.find({
+        "product_id": product_id
+    }).sort("timestamp", -1).limit(20))
+    
+    # Enrich transactions with unit names
+    for transaction in recent_transactions:
+        unit = unit_model.get_unit_by_id(transaction['unit_id'])
+        transaction['unit_name'] = unit['unit_name'] if unit else 'Άγνωστη'
+    
+    return render_template('admin/view_product_details.html', 
+                         product=product,
+                         unit_data=unit_data,
+                         total_quantity=total_quantity,
+                         total_gain=total_gain,
+                         recent_transactions=recent_transactions)
+
+@admin_bp.route('/edit_product/<product_id>', methods=['GET', 'POST'])
+def edit_product(product_id):
+    """Edit product information"""
+    check = require_admin()
+    if check: return check
+    
+    # Get product
+    product = db_instance.db.products_master.find_one({"product_id": product_id})
+    if not product:
+        flash('Το προϊόν δεν βρέθηκε!', 'error')
+        return redirect(url_for('admin.view_products'))
+    
+    if request.method == 'POST':
+        # Get form data
+        product_name = request.form['product_name']
+        product_weight = float(request.form['product_weight'])
+        product_volume = float(request.form['product_volume'])
+        product_category = request.form['product_category']
+        product_purchase_price = float(request.form['product_purchase_price'])
+        product_selling_price = float(request.form['product_selling_price'])
+        product_manufacturer = request.form['product_manufacturer']
+        
+        if all([product_name, product_weight >= 0, product_volume >= 0, 
+                product_category, product_purchase_price >= 0, 
+                product_selling_price >= 0, product_manufacturer]):
+            
+            # Update product in master catalog
+            db_instance.db.products_master.update_one(
+                {"product_id": product_id},
+                {"$set": {
+                    "product_name": product_name,
+                    "product_weight": product_weight,
+                    "product_volume": product_volume,
+                    "product_category": product_category,
+                    "product_purchase_price": product_purchase_price,
+                    "product_selling_price": product_selling_price,
+                    "product_manufacturer": product_manufacturer
+                }}
+            )
+            
+            flash(f'Το προϊόν "{product_name}" ενημερώθηκε επιτυχώς!', 'success')
+            return redirect(url_for('admin.view_products'))
+        else:
+            flash('Παρακαλώ συμπληρώστε όλα τα πεδία σωστά!', 'error')
+    
+    return render_template('admin/edit_product.html', product=product)
+
 @admin_bp.route('/create_supervisor', methods=['GET', 'POST'])
 def create_supervisor():
     """Create new supervisor"""
