@@ -1,0 +1,133 @@
+{% extends "base.html" %}
+
+{% block title %}Επεξεργασία Αποθήκης {% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1><i class="fas fa-edit"></i> Επεξεργασία Αποθήκης: {{ unit.unit_name }}</h1>
+        <a href="{{ url_for('admin.view_unit', unit_id=unit.unit_id) }}" class="btn btn-secondary">
+            <i class="fas fa-arrow-left"></i> Επιστροφή
+        </a>
+    </div>
+
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header">
+                    <h5><i class="fas fa-warehouse"></i> Στοιχεία Αποθήκης</h5>
+                </div>
+                <div class="card-body">
+                    <form method="POST" id="editUnitForm">
+                        <div class="mb-3">
+                            <label for="unit_id" class="form-label">Κωδικός Αποθήκης</label>
+                            <input type="text" class="form-control" id="unit_id" value="{{ unit.unit_id }}" readonly>
+                            <div class="form-text">Ο κωδικός αποθήκης δεν μπορεί να αλλάξει.</div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="unit_name" class="form-label">Όνομα Αποθήκης <span class="text-danger">*</span></label>
+                            <input type="text" 
+                                   class="form-control" 
+                                   id="unit_name" 
+                                   name="unit_name" 
+                                   value="{{ unit.unit_name }}"
+                                   required
+                                   placeholder="π.χ. Αποθήκη Κεντρική">
+                            <div class="form-text">Εισάγετε ένα περιγραφικό όνομα για την αποθήκη.</div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="unit_volume" class="form-label">Όγκος Αποθήκης (m³) <span class="text-danger">*</span></label>
+                            <input type="number" 
+                                   class="form-control" 
+                                   id="unit_volume" 
+                                   name="unit_volume" 
+                                   value="{{ unit.unit_volume }}"
+                                   step="0.01"
+                                   min="0.01"
+                                   required
+                                   placeholder="π.χ. 1000.00">
+                            <div class="form-text">Εισάγετε τον συνολικό όγκο της αποθήκης σε κυβικά μέτρα.</div>
+                        </div>
+
+                        <!-- Current Usage Info -->
+                        <div class="alert alert-info">
+                            <h6><i class="fas fa-info-circle"></i> Πληροφορίες Χρήσης</h6>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <strong>Δημιουργήθηκε:</strong> 
+                                    {{ unit.created_at.strftime('%d/%m/%Y %H:%M') if unit.created_at else 'N/A' }}
+                                </div>
+                                <div class="col-md-6">
+                                    <strong>Τελευταία Ενημέρωση:</strong> 
+                                    {{ unit.updated_at.strftime('%d/%m/%Y %H:%M') if unit.updated_at else 'N/A' }}
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                            <a href="{{ url_for('admin.view_unit', unit_id=unit.unit_id) }}" class="btn btn-secondary me-md-2">
+                                <i class="fas fa-times"></i> Ακύρωση
+                            </a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save"></i> Αποθήκευση Αλλαγών
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.getElementById('editUnitForm').addEventListener('submit', function(e) {
+    const unitName = document.getElementById('unit_name').value.trim();
+    const unitVolume = parseFloat(document.getElementById('unit_volume').value);
+    
+    // Validation
+    if (!unitName) {
+        e.preventDefault();
+        alert('Παρακαλώ εισάγετε όνομα αποθήκης!');
+        document.getElementById('unit_name').focus();
+        return;
+    }
+    
+    if (!unitVolume || unitVolume <= 0) {
+        e.preventDefault();
+        alert('Παρακαλώ εισάγετε έγκυρο όγκο αποθήκης!');
+        document.getElementById('unit_volume').focus();
+        return;
+    }
+    
+    // Confirmation
+    if (!confirm(`Είστε σίγουροι ότι θέλετε να ενημερώσετε την αποθήκη "${unitName}";`)) {
+        e.preventDefault();
+    }
+});
+
+// Real-time validation
+document.getElementById('unit_name').addEventListener('input', function() {
+    const value = this.value.trim();
+    if (value.length < 2) {
+        this.classList.add('is-invalid');
+    } else {
+        this.classList.remove('is-invalid');
+        this.classList.add('is-valid');
+    }
+});
+
+document.getElementById('unit_volume').addEventListener('input', function() {
+    const value = parseFloat(this.value);
+    if (!value || value <= 0) {
+        this.classList.add('is-invalid');
+    } else {
+        this.classList.remove('is-invalid');
+        this.classList.add('is-valid');
+    }
+});
+</script>
+{% endblock %}

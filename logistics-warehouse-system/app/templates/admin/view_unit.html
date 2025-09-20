@@ -1,0 +1,251 @@
+{% extends "base.html" %}
+
+{% block title %}Προβολή Αποθήκης {{ unit.unit_name }}{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1><i class="fas fa-warehouse"></i> Προβολή Αποθήκης: {{ unit.unit_name }}</h1>
+        <div>
+            <a href="{{ url_for('admin.edit_unit', unit_id=unit.unit_id) }}" class="btn btn-warning">
+                <i class="fas fa-edit"></i> Επεξεργασία
+            </a>
+            <a href="{{ url_for('admin.view_units') }}" class="btn btn-secondary">
+                <i class="fas fa-arrow-left"></i> Επιστροφή
+            </a>
+        </div>
+    </div>
+
+    <!-- Unit Information -->
+    <div class="row mb-4">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h5><i class="fas fa-info-circle"></i> Στοιχεία Αποθήκης</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-sm-4"><strong>Κωδικός:</strong></div>
+                        <div class="col-sm-8">{{ unit.unit_id }}</div>
+                    </div>
+                    <hr>
+                    <div class="row">
+                        <div class="col-sm-4"><strong>Όνομα:</strong></div>
+                        <div class="col-sm-8">{{ unit.unit_name }}</div>
+                    </div>
+                    <hr>
+                    <div class="row">
+                        <div class="col-sm-4"><strong>Όγκος:</strong></div>
+                        <div class="col-sm-8">{{ "%.2f"|format(unit.unit_volume) }} m³</div>
+                    </div>
+                    <hr>
+                    <div class="row">
+                        <div class="col-sm-4"><strong>Χρησιμοποιημένος Όγκος:</strong></div>
+                        <div class="col-sm-8">
+                            {{ "%.2f"|format(total_volume_used) }} m³
+                            <span class="badge bg-{{ 'danger' if volume_usage_percentage > 90 else ('warning' if volume_usage_percentage > 75 else 'success') }}">
+                                {{ "%.1f"|format(volume_usage_percentage) }}%
+                            </span>
+                        </div>
+                    </div>
+                    <hr>
+                    <div class="row">
+                        <div class="col-sm-4"><strong>Διαθέσιμος Όγκος:</strong></div>
+                        <div class="col-sm-8">{{ "%.2f"|format(unit.unit_volume - total_volume_used) }} m³</div>
+                    </div>
+                    <hr>
+                    <div class="row">
+                        <div class="col-sm-4"><strong>Δημιουργήθηκε:</strong></div>
+                        <div class="col-sm-8">{{ unit.created_at.strftime('%d/%m/%Y %H:%M') if unit.created_at else 'N/A' }}</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h5><i class="fas fa-chart-line"></i> Οικονομικά Στοιχεία</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-sm-6"><strong>Πραγματοποιηθέν Κέρδος:</strong></div>
+                        <div class="col-sm-6">
+                            <span class="{{ 'text-success' if financial_summary.total_realized_gain >= 0 else 'text-danger' }}">
+                                {{ "%.2f"|format(financial_summary.total_realized_gain) }}€
+                            </span>
+                        </div>
+                    </div>
+                    <hr>
+                    <div class="row">
+                        <div class="col-sm-6"><strong>Επένδυση Αποθέματος:</strong></div>
+                        <div class="col-sm-6">
+                            <span class="text-warning">{{ "%.2f"|format(financial_summary.total_investment) }}€</span>
+                        </div>
+                    </div>
+                    <hr>
+                    <div class="row">
+                        <div class="col-sm-6"><strong>Πιθανά Έσοδα:</strong></div>
+                        <div class="col-sm-6">
+                            <span class="text-info">{{ "%.2f"|format(financial_summary.total_potential_revenue) }}€</span>
+                        </div>
+                    </div>
+                    <hr>
+                    <div class="row">
+                        <div class="col-sm-6"><strong>Δυνητικό Κέρδος από Απόθεμα:</strong></div>
+                        <div class="col-sm-6">
+                            <span class="{{ 'text-success' if financial_summary.potential_profit_from_stock >= 0 else 'text-danger' }}">
+                                {{ "%.2f"|format(financial_summary.potential_profit_from_stock) }}€
+                            </span>
+                        </div>
+                    </div>
+                    <hr>
+                    <div class="row">
+                        <div class="col-sm-6"><strong>Συνολικό Δυνητικό Κέρδος:</strong></div>
+                        <div class="col-sm-6">
+                            <span class="{{ 'text-success' if financial_summary.total_potential_gain >= 0 else 'text-danger' }} fw-bold fs-5">
+                                {{ "%.2f"|format(financial_summary.total_potential_gain) }}€
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Employees -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5><i class="fas fa-users"></i> Εργαζόμενοι ({{ unit_employees|length }})</h5>
+                </div>
+                <div class="card-body">
+                    {% if unit_employees %}
+                        <div class="table-responsive">
+                            <table class="table table-striped">
+                                <thead class="table-dark">
+                                    <tr>
+                                        <th>Username</th>
+                                        <th>Όνομα</th>
+                                        <th>Ρόλος</th>
+                                        <th>Τελευταία Σύνδεση</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for employee in unit_employees %}
+                                    <tr>
+                                        <td>{{ employee.username }}</td>
+                                        <td>{{ employee.name }} {{ employee.surname }}</td>
+                                        <td>
+                                            <span class="badge bg-{{ 'primary' if employee.role == 'supervisor' else 'secondary' }}">
+                                                {{ 'Επόπτης' if employee.role == 'supervisor' else 'Εργαζόμενος' }}
+                                            </span>
+                                        </td>
+                                        <td>
+                                            {% if employee.last_login %}
+                                                {{ employee.last_login.strftime('%d/%m/%Y %H:%M') }}
+                                            {% else %}
+                                                <span class="text-muted">Ποτέ</span>
+                                            {% endif %}
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <div class="text-center text-muted">
+                            <i class="fas fa-user-slash fa-3x mb-3"></i>
+                            <h5>Δεν υπάρχουν εργαζόμενοι</h5>
+                            <p>Δεν έχουν ανατεθεί εργαζόμενοι σε αυτή την αποθήκη.</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Products -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5><i class="fas fa-boxes"></i> Προϊόντα Αποθήκης ({{ unit_products|length }})</h5>
+                </div>
+                <div class="card-body">
+                    {% if unit_products %}
+                        <div class="table-responsive">
+                            <table class="table table-striped">
+                                <thead class="table-dark">
+                                    <tr>
+                                        <th>Κωδικός</th>
+                                        <th>Όνομα</th>
+                                        <th>Κατηγορία</th>
+                                        <th>Ποσότητα</th>
+                                        <th>Τιμή Αγοράς</th>
+                                        <th>Τιμή Πώλησης</th>
+                                        <th>Κέρδος ανά Μονάδα</th>
+                                        <th>Συνολικό Κέρδος</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for product in unit_products %}
+                                    <tr>
+                                        <td><span class="badge bg-primary">{{ product.product_id }}</span></td>
+                                        <td>{{ product.product_name }}</td>
+                                        <td>{{ product.product_category }}</td>
+                                        <td>
+                                            <span class="badge bg-{{ 'success' if product.product_quantity > 0 else 'danger' }}">
+                                                {{ product.product_quantity }} τεμ.
+                                            </span>
+                                        </td>
+                                        <td>{{ "%.2f"|format(product.product_purchase_price) }}€</td>
+                                        <td>{{ "%.2f"|format(product.product_selling_price) }}€</td>
+                                        <td>
+                                            {% set profit_per_unit = product.product_selling_price - product.product_purchase_price %}
+                                            <span class="{{ 'text-success' if profit_per_unit >= 0 else 'text-danger' }}">
+                                                {{ "%.2f"|format(profit_per_unit) }}€
+                                            </span>
+                                        </td>
+                                        <td>
+                                            <span class="{{ 'text-success' if product.product_unit_gain >= 0 else 'text-danger' }}">
+                                                {{ "%.2f"|format(product.product_unit_gain) }}€
+                                            </span>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <div class="text-center text-muted">
+                            <i class="fas fa-box-open fa-3x mb-3"></i>
+                            <h5>Δεν υπάρχουν προϊόντα</h5>
+                            <p>Δεν υπάρχουν προϊόντα σε αυτή την αποθήκη.</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Back Button -->
+    <div class="row mt-4">
+        <div class="col-12">
+            <a href="{{ url_for('admin.view_units') }}" class="btn btn-secondary">
+                <i class="fas fa-arrow-left"></i> Επιστροφή στο Dashboard
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Auto-refresh page every 30 seconds for real-time data
+    setTimeout(function() {
+        location.reload();
+    }, 30000);
+</script>
+{% endblock %}

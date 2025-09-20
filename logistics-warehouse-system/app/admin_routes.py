@@ -1,6 +1,7 @@
 """
 Admin routes for the Logistics Warehouse System
 """
+from datetime import datetime
 from flask import Blueprint, render_template, request, redirect, url_for, session, flash, jsonify
 from .models import user_model, unit_model, product_model, transaction_model
 from .database import db_instance
@@ -108,26 +109,6 @@ def view_units():
         unit['financial_summary'] = financial_summary
     
     return render_template('admin/view_units.html', units=units)
-
-@admin_bp.route('/delete_unit/<unit_id>')
-def delete_unit(unit_id):
-    """Delete warehouse unit"""
-    check = require_admin()
-    if check: return check
-    
-    # Check if unit has employees or supervisors
-    employees = user_model.get_users_by_unit(unit_id)
-    if employees:
-        flash('Δεν μπορείτε να διαγράψετε αποθήκη που έχει υπαλλήλους!', 'error')
-        return redirect(url_for('admin.view_units'))
-    
-    # Delete unit products and unit
-    db_instance.db.unit_products.delete_many({"unit_id": unit_id})
-    db_instance.db.transactions.delete_many({"unit_id": unit_id})
-    unit_model.delete_unit(unit_id)
-    
-    flash('Η αποθήκη διαγράφηκε επιτυχώς!', 'success')
-    return redirect(url_for('admin.view_units'))
 
 @admin_bp.route('/create_product', methods=['GET', 'POST'])
 def create_product():
@@ -559,3 +540,120 @@ def company_statistics():
                          employee_performance=employee_performance[:10],  # Top 10
                          monthly_sales=monthly_sales_list,
                          unit_count=len(units))
+
+@admin_bp.route('/view_unit/<unit_id>')
+def view_unit(unit_id):
+    """View unit details"""
+    check = require_admin()
+    if check: return check
+    
+    # Get unit details
+    unit = unit_model.get_unit_by_id(unit_id)
+    if not unit:
+        flash('Η αποθήκη δεν βρέθηκε!', 'error')
+        return redirect(url_for('admin.view_units'))
+    
+    # Get unit products
+    unit_products = product_model.get_products_by_unit(unit_id)
+    
+    # Get financial summary
+    financial_summary = product_model.calculate_unit_financial_summary(unit_id)
+    
+    # Get unit employees
+    unit_employees = user_model.get_users_by_unit(unit_id)
+    
+    # Calculate volume usage
+    total_volume_used = 0
+    for product in unit_products:
+        if 'product_volume' in product and 'product_quantity' in product:
+            total_volume_used += product['product_volume'] * product['product_quantity']
+    
+    volume_usage_percentage = (total_volume_used / unit['unit_volume'] * 100) if unit['unit_volume'] > 0 else 0
+    
+    return render_template('admin/view_unit.html',
+                         unit=unit,
+                         unit_products=unit_products,
+                         financial_summary=financial_summary,
+                         unit_employees=unit_employees,
+                         total_volume_used=total_volume_used,
+                         volume_usage_percentage=volume_usage_percentage)
+
+@admin_bp.route('/edit_unit/<unit_id>', methods=['GET', 'POST'])
+def edit_unit(unit_id):
+    """Edit unit details"""
+    check = require_admin()
+    if check: return check
+    
+    unit = unit_model.get_unit_by_id(unit_id)
+    if not unit:
+        flash('Η αποθήκη δεν βρέθηκε!', 'error')
+        return redirect(url_for('admin.view_units'))
+    
+    if request.method == 'POST':
+        unit_name = request.form.get('unit_name', '').strip()
+        unit_volume = request.form.get('unit_volume', '').strip()
+        
+        if unit_name and unit_volume:
+            try:
+                unit_volume = float(unit_volume)
+                if unit_volume > 0:
+                    # Update unit
+                    result = db_instance.db.units.update_one(
+                        {"unit_id": unit_id},
+                        {"$set": {
+                            "unit_name": unit_name,
+                            "unit_volume": unit_volume,
+                            "updated_at": datetime.utcnow()
+                        }}
+                    )
+                    
+                    if result.modified_count > 0:
+                        flash('Η αποθήκη ενημερώθηκε επιτυχώς!', 'success')
+                        return redirect(url_for('admin.view_units'))
+                    else:
+                        flash('Δεν έγιναν αλλαγές στην αποθήκη.', 'info')
+                else:
+                    flash('Ο όγκος πρέπει να είναι θετικός αριθμός!', 'error')
+            except ValueError:
+                flash('Ο όγκος πρέπει να είναι έγκυρος αριθμός!', 'error')
+        else:
+            flash('Παρακαλώ συμπληρώστε όλα τα πεδία!', 'error')
+    
+    return render_template('admin/edit_unit.html', unit=unit)
+
+@admin_bp.route('/delete_unit/<unit_id>')
+def delete_unit(unit_id):
+    """Delete unit and all associated data"""
+    check = require_admin()
+    if check: return check
+    
+    unit = unit_model.get_unit_by_id(unit_id)
+    if not unit:
+        flash('Η αποθήκη δεν βρέθηκε!', 'error')
+        return redirect(url_for('admin.view_units'))
+    
+    # Check if unit has employees
+    unit_employees = user_model.get_users_by_unit(unit_id)
+    if unit_employees:
+        flash(f'Δεν μπορείτε να διαγράψετε την αποθήκη {unit["unit_name"]} επειδή έχει {len(unit_employees)} εργαζομένους!', 'error')
+        return redirect(url_for('admin.view_units'))
+    
+    try:
+        # Delete unit products
+        db_instance.db.unit_products.delete_many({"unit_id": unit_id})
+        
+        # Delete transactions
+        db_instance.db.transactions.delete_many({"unit_id": unit_id})
+        
+        # Delete unit
+        result = unit_model.delete_unit(unit_id)
+        
+        if result.deleted_count > 0:
+            flash(f'Η αποθήκη "{unit["unit_name"]}" διαγράφηκε επιτυχώς!', 'success')
+        else:
+            flash('Υπήρξε σφάλμα κατά τη διαγραφή της αποθήκης!', 'error')
+            
+    except Exception as e:
+        flash(f'Σφάλμα κατά τη διαγραφή: {str(e)}', 'error')
+    
+    return redirect(url_for('admin.view_units'))

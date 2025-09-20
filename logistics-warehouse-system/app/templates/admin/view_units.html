@@ -45,13 +45,19 @@
                                 <td>{{ unit.created_at.strftime('%d/%m/%Y %H:%M') if unit.created_at else '-' }}</td>
                                 <td>
                                     <div class="btn-group" role="group">
-                                        <button type="button" class="btn btn-sm btn-outline-info" title="Προβολή Στοιχείων">
+                                        <a href="{{ url_for('admin.view_unit', unit_id=unit.unit_id) }}" 
+                                           class="btn btn-sm btn-outline-info" 
+                                           title="Προβολή Στοιχείων">
                                             <i class="fas fa-eye"></i>
-                                        </button>
-                                        <button type="button" class="btn btn-sm btn-outline-warning" title="Επεξεργασία">
+                                        </a>
+                                        <a href="{{ url_for('admin.edit_unit', unit_id=unit.unit_id) }}" 
+                                           class="btn btn-sm btn-outline-warning" 
+                                           title="Επεξεργασία">
                                             <i class="fas fa-edit"></i>
-                                        </button>
-                                        <button type="button" class="btn btn-sm btn-outline-danger" title="Διαγραφή" 
+                                        </a>
+                                        <button type="button" 
+                                                class="btn btn-sm btn-outline-danger" 
+                                                title="Διαγραφή" 
                                                 onclick="confirmDelete('{{ unit.unit_id }}', '{{ unit.unit_name }}')">
                                             <i class="fas fa-trash"></i>
                                         </button>
@@ -86,10 +92,20 @@
 
 <script>
 function confirmDelete(unitId, unitName) {
-    if (confirm(`Είστε σίγουροι ότι θέλετε να διαγράψετε την αποθήκη "${unitName}"?`)) {
-        // Implement delete functionality here
-        alert('Η λειτουργία διαγραφής θα υλοποιηθεί σύντομα');
+    if (confirm(`Είστε σίγουροι ότι θέλετε να διαγράψετε την αποθήκη "${unitName}"?\n\nΠροσοχή: Αυτή η ενέργεια θα διαγράψει επίσης:\n- Όλα τα προϊόντα της αποθήκης\n- Όλες τις συναλλαγές\n- Δεν μπορεί να αναιρεθεί!`)) {
+        // Additional confirmation for safety
+        if (confirm('Τελευταία επιβεβαίωση: Είστε ΑΠΟΛΥΤΩΣ σίγουροι;')) {
+            window.location.href = `/admin/delete_unit/${unitId}`;
+        }
     }
 }
+
+// Add tooltips
+document.addEventListener('DOMContentLoaded', function() {
+    var tooltipTriggerList = [].slice.call(document.querySelectorAll('[title]'));
+    var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+        return new bootstrap.Tooltip(tooltipTriggerEl);
+    });
+});
 </script>
 {% endblock %}
