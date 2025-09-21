@@ -78,17 +78,11 @@
             </div>
             <div class="card-body text-center">
                 <div class="row">
-                    <div class="col-md-6">
+                    <div class="col-md-12">
                         <h3 class="{{ 'text-success' if total_realized_gain >= 0 else 'text-danger' }}">
                             {{ "%.2f"|format(total_realized_gain) }} €
                         </h3>
                         <p class="text-muted">Πραγματοποιηθέν Κέρδος</p>
-                    </div>
-                    <div class="col-md-6">
-                        <h3 class="{{ 'text-success' if total_potential_gain >= 0 else 'text-danger' }}">
-                            {{ "%.2f"|format(total_potential_gain) }} €
-                        </h3>
-                        <p class="text-muted">Συνολικό Πιθανό Κέρδος</p>
                     </div>
                 </div>
             </div>

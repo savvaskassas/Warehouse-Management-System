@@ -173,31 +173,9 @@
                     {% set profit_margin = (financial_summary.potential_profit_from_stock / financial_summary.total_investment * 100) if financial_summary.total_investment > 0 else 0 %}
                     {% set roi = (financial_summary.total_realized_gain / financial_summary.total_investment * 100) if financial_summary.total_investment > 0 else 0 %}
                     
-                    <div class="mb-3">
-                        <div class="d-flex justify-content-between">
-                            <span>Περιθώριο Κέρδους Αποθέματος:</span>
-                            <strong class="{{ 'text-success' if profit_margin >= 0 else 'text-danger' }}">
-                                {{ "%.1f"|format(profit_margin) }}%
-                            </strong>
-                        </div>
-                        <div class="progress mt-1">
-                            <div class="progress-bar {{ 'bg-success' if profit_margin >= 0 else 'bg-danger' }}" 
-                                 style="width: 50%"></div>
-                        </div>
-                    </div>
+
                     
-                    <div class="mb-3">
-                        <div class="d-flex justify-content-between">
-                            <span>ROI Πραγματοποιηθέν:</span>
-                            <strong class="{{ 'text-success' if roi >= 0 else 'text-danger' }}">
-                                {{ "%.1f"|format(roi) }}%
-                            </strong>
-                        </div>
-                        <div class="progress mt-1">
-                            <div class="progress-bar {{ 'bg-success' if roi >= 0 else 'bg-danger' }}" 
-                                 style="width: 50%"></div>
-                        </div>
-                    </div>
+
                 </div>
             </div>
         </div>
