@@ -138,19 +138,6 @@
                         </div>
                         
                         <div class="col-md-6">
-                            <div class="alert alert-{{ 'success' if financial_summary.total_potential_gain >= 0 else 'danger' }}">
-                                <h5><i class="fas fa-calculator"></i> Συνολική Εικόνα</h5>
-                                <div class="d-flex justify-content-between mb-2">
-                                    <span><strong>Συνολικό Πιθανό Κέρδος:</strong></span>
-                                    <span class="fs-4"><strong>{{ "%.2f"|format(financial_summary.total_potential_gain) }}€</strong></span>
-                                </div>
-                                <hr>
-                                <small>
-                                    Αυτό περιλαμβάνει το πραγματοποιηθέν κέρδος από πωλήσεις 
-                                    συν το πιθανό κέρδος αν πουληθεί όλο το τρέχον απόθεμα.
-                                </small>
-                            </div>
-                            
                             <div class="alert alert-info">
                                 <h6><i class="fas fa-info-circle"></i> Σημείωση</h6>
                                 <small>
