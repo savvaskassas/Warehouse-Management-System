@@ -150,25 +150,6 @@
                 </div>
             </div>
         </div>
-        
-        <div class="col-lg-4">
-            <div class="card h-100">
-                <div class="card-header">
-                    <h5><i class="fas fa-percentage"></i> Δείκτες Απόδοσης</h5>
-                </div>
-                <div class="card-body">
-                    {% set profit_margin = (financial_summary.potential_profit_from_stock / financial_summary.total_investment * 100) if financial_summary.total_investment > 0 else 0 %}
-                    {% set roi = (financial_summary.total_realized_gain / financial_summary.total_investment * 100) if financial_summary.total_investment > 0 else 0 %}
-                    
-
-                    
-
-                </div>
-            </div>
-        </div>
-                </div>
-            </div>
-        </div>
     </div>
 
     <!-- Charts Row -->
