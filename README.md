@@ -426,8 +426,6 @@ docker compose logs web
 - Αριθμό εργαζομένων
 - Διαγράμματα κατανομής
 
-![View Statistics](../screenshots/ViewStatistics.png)
-*Σελίδα στατιστικών με διαγράμματα απόδοσης*
 
 ### 3. Λειτουργίες Προϊσταμένου (Supervisor)
 
@@ -454,6 +452,9 @@ docker compose logs web
 - Πόσο όγκο χρησιμοποιείτε
 - Αριθμό υπαλλήλων
 - Διαγράμματα με ανάλυση κερδών
+
+![View Statistics](../screenshots/ViewStatistics.png)
+*Σελίδα στατιστικών με διαγράμματα απόδοσης*
 
 ### 4. Λειτουργίες Υπαλλήλου (Employee)
 
