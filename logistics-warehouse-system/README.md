@@ -1,8 +1,8 @@
-# 🏗️ Σύστημα Διαχείρισης Βιομηχανικών Αποθηκών
+# Σύστημα Διαχείρισης Βιομηχανικών Αποθηκών
 
-Ένα πλήρως λειτουργικό πληροφοριακό σύστημα για τη διαχείριση βιομηχανικών αποθηκών, υλοποιημένο με Flask, MongoDB και Docker.
+Αυτή η εργασία παρουσιάζει ένα ολοκληρωμένο πληροφοριακό σύστημα για τη διαχείριση βιομηχανικών αποθηκών. Το σύστημα αναπτύχθηκε στο πλαίσιο του μαθήματος "Πληροφοριακά Συστήματα" και υλοποιήθηκε με τη χρήση σύγχρονων τεχνολογιών όπως Flask, MongoDB και Docker.
 
-## 📋 Περιεχόμενα
+## Περιεχόμενα
 
 - [Επιπλέον Παραδοχές και Παρεκκλίσεις](#επιπλέον-παραδοχές-και-παρεκκλίσεις)
 - [Τεχνολογίες που Χρησιμοποιήθηκαν](#τεχνολογίες-που-χρησιμοποιήθηκαν)
@@ -10,112 +10,97 @@
 - [Βάση Δεδομένων](#βάση-δεδομένων)
 - [Τρόπος Εκτέλεσης](#τρόπος-εκτέλεσης)
 - [Τρόπος Χρήσης](#τρόπος-χρήσης)
+- [Screenshots του Συστήματος](#screenshots-του-συστήματος)
 - [Αναφορές](#αναφορές)
 
-## 🔧 Επιπλέον Παραδοχές και Παρεκκλίσεις από την Εκφώνηση
+## Επιπλέον Παραδοχές και Παρεκκλίσεις από την Εκφώνηση
 
-### Παραδοχές Σχεδιασμού
+Κατά την ανάπτυξη του συστήματος έγιναν κάποιες παραδοχές σχεδιασμού που θεωρώ σκόπιμο να αναφέρω:
 
-1. **Ρόλοι Χρηστών**: Οι Supervisors θεωρούνται επίσης Employees σύμφωνα με την εκφώνηση
-2. **Product IDs**: Αυτόματη δημιουργία με format "P0001", "P0002", κλπ.
-3. **Unit IDs**: Αυτόματη δημιουργία με format "001", "002", κλπ.
-4. **Κέρδη/Ζημίες**: Διαχωρισμός σε πραγματοποιηθέντα και δυνητικά κέρδη
-5. **Όγκος Αποθήκης**: Υπολογισμός βάσει product_volume × product_quantity
+### Παραδοχές που υιοθετήθηκαν
 
-### Επιπλέον Χαρακτηριστικά (Bonus Features)
+Στην πορεία ανάπτυξης του συστήματος προέκυψε η ανάγκη να πάρω κάποιες αποφάσεις σχεδιασμού:
 
-Πέρα από τις βασικές απαιτήσεις της εκφώνησης, το σύστημα περιλαμβάνει:
+1. **Ιεραρχία ρόλων**: Θεώρησα ότι οι Supervisors είναι επίσης Employees σύμφωνα με την εκφώνηση
+2. **Αυτόματη αρίθμηση προϊόντων**: Τα Product IDs δημιουργούνται αυτόματα με μορφή "P0001", "P0002", κτλ.
+3. **Αυτόματη αρίθμηση αποθηκών**: Τα Unit IDs δημιουργούνται αυτόματα ως "001", "002", κτλ.
+4. **Διαχωρισμός κερδών**: Υπολογίζω ξεχωριστά τα πραγματοποιηθέντα και τα δυνητικά κέρδη
+5. **Υπολογισμός όγκου**: Ο όγκος αποθήκης υπολογίζεται ως άθροισμα των product_volume × product_quantity
 
-- **Modern UI**: Bootstrap 5 για καλύτερη user experience
-- **Διαγράμματα**: Chart.js για οπτική αναπαράσταση δεδομένων
-- **Real-time Updates**: Αυτόματη ενημέρωση δεδομένων
-- **Enhanced Security**: Bcrypt hashing, session management
-- **Performance Optimizations**: Database indexing, optimized queries
-- **Advanced Analytics**: ROI calculations, profit margins
-- **Responsive Design**: Mobile-friendly interface
+### Επιπλέον χαρακτηριστικά που προσέθεσα
+
+Πέραν των βασικών απαιτήσεων, προσέθεσα μερικά χαρακτηριστικά που θεώρησα χρήσιμα:
+
+- **Σύγχρονο interface**: Χρησιμοποίησα Bootstrap 5 για καλύτερη εμπειρία χρήστη
+- **Γραφήματα**: Ενσωμάτωσα Chart.js για οπτικοποίηση των δεδομένων
+- **Real-time ενημερώσεις**: Τα δεδομένα ενημερώνονται αυτόματα
+- **Ενισχυμένη ασφάλεια**: Χρήση bcrypt για τους κωδικούς και session management
+- **Βελτιστοποιήσεις απόδοσης**: Database indexing και βελτιστοποιημένα queries
+- **Ανάλυση δεδομένων**: Υπολογισμοί ROI και profit margins
+- **Responsive σχεδίαση**: Mobile-friendly interface
 
 ### Παρεκκλίσεις
 
-**Καμία παρέκκλιση από την εκφώνηση** - όλες οι απαιτήσεις καλύπτονται πλήρως.
+Δεν υπάρχουν παρεκκλίσεις από την εκφώνηση - όλες οι απαιτήσεις καλύπτονται πλήρως.
 
-## 🛠️ Τεχνολογίες που Χρησιμοποιήθηκαν
+## Τεχνολογίες που Χρησιμοποιήθηκαν
 
-### Backend
+Η επιλογή των τεχνολογιών έγινε με βάση τις απαιτήσεις του μαθήματος και τη σύγχρονη πρακτική ανάπτυξης web εφαρμογών.
+
+### Backend τεχνολογίες
 - **Python 3.9**: Κύρια γλώσσα προγραμματισμού
-- **Flask 2.3.3**: Web framework για το REST API
+- **Flask 2.3.3**: Lightweight web framework για το REST API
 - **PyMongo 4.5.0**: MongoDB driver για Python
-- **bcrypt 4.0.1**: Password hashing
-- **python-dotenv 1.0.0**: Environment variables management
+- **bcrypt 4.0.1**: Για ασφαλή κρυπτογράφηση κωδικών
+- **python-dotenv 1.0.0**: Διαχείριση environment variables
 
-### Frontend
-- **Jinja2**: Template engine (μέρος του Flask)
-- **Bootstrap 5.3.0**: CSS framework για responsive design
-- **Chart.js 3.9.1**: JavaScript library για διαγράμματα
-- **Font Awesome 6.4.0**: Icons library
+### Frontend τεχνολογίες
+- **Jinja2**: Template engine (ενσωματωμένο στο Flask)
+- **Bootstrap 5.3.0**: CSS framework για responsive σχεδίαση
+- **Chart.js 3.9.1**: JavaScript library για δημιουργία διαγραμμάτων
+- **Font Awesome 6.4.0**: Icon library για το UI
 
 ### Database
 - **MongoDB 5.0**: NoSQL document database
-- **Hybrid Schema Design**: Συνδυασμός σχεσιακής και μη-σχεσιακής προσέγγισης
+- **Hybrid Schema Design**: Συνδύασα σχεσιακή και μη-σχεσιακή προσέγγιση
 
-### DevOps
-- **Docker**: Containerization
+### DevOps εργαλεία
+- **Docker**: Για containerization της εφαρμογής
 - **Docker Compose**: Multi-container orchestration
-- **Docker Volume**: Data persistence
+- **Docker Volume**: Διατήρηση δεδομένων
 
-## 📁 Περιγραφή Αρχείων
+## Περιγραφή Αρχείων
 
-```
-logistics-warehouse-system/
-├── compose.yaml                 # Docker Compose configuration
-├── Dockerfile                   # Docker image definition
-├── requirements.txt             # Python dependencies
-├── README.md                    # Documentation
-├── data/                        # MongoDB data volume
-└── app/                         # Application source code
-    ├── __init__.py             # Package initialization
-    ├── main.py                 # Main Flask application & routes
-    ├── database.py             # MongoDB connection & initialization
-    ├── models.py               # Data models & business logic
-    ├── admin_routes.py         # Admin-specific routes
-    ├── supervisor_routes.py    # Supervisor-specific routes
-    ├── employee_routes.py      # Employee-specific routes
-    ├── static/                 # Static files (CSS, JS, images)
-    └── templates/              # Jinja2 templates
-        ├── base.html           # Base template
-        ├── login.html          # Login page
-        ├── profile.html        # User profile page
-        ├── change_password.html # Password change page
-        ├── admin/              # Admin templates
-        │   ├── dashboard.html
-        │   ├── view_units.html
-        │   ├── create_unit.html
-        │   ├── view_unit.html
-        │   ├── edit_unit.html
-        │   ├── view_supervisors.html
-        │   ├── create_supervisor.html
-        │   ├── change_supervisor_password.html
-        │   ├── view_products.html
-        │   ├── create_product.html
-        │   ├── view_product.html
-        │   ├── edit_product.html
-        │   └── statistics.html
-        ├── supervisor/         # Supervisor templates
-        │   ├── dashboard.html
-        │   ├── view_employees.html
-        │   ├── create_employee.html
-        │   ├── change_employee_password.html
-        │   ├── purchase_product.html
-        │   └── statistics.html
-        └── employee/           # Employee templates
-            ├── dashboard.html
-            ├── view_products.html
-            ├── view_product_details.html
-            ├── product_details.html
-            ├── sell_product.html
-            └── quick_search.html
-```
+Όταν ξεκίνησα το project, σκέφτηκα να το οργανώσω με τρόπο που να μπορώ εύκολα να βρίσκω τα αρχεία και να προσθέτω νέες λειτουργίες μετά.
 
-### Βασικά Αρχεία
+Βασικά έχω αυτή τη δομή:
+
+- **compose.yaml** και **Dockerfile**: Για το Docker setup
+- **requirements.txt**: Όλα τα Python packages που χρειάζομαι
+- **data/**: Εδώ αποθηκεύονται τα δεδομένα της MongoDB
+- **app/**: Όλος ο κώδικας Python
+
+Μέσα στο **app/** χώρισα τον κώδικα σε αρχεία ανάλογα με το τι κάνουν:
+
+- **main.py**: Το κυρίως Flask app με τα βασικά routes (login, logout, κλπ)
+- **database.py**: Όλη η δουλειά με τη MongoDB (σύνδεση, indexes, κλπ)
+- **models.py**: Οι κλάσεις που χειρίζονται users, products, units
+- **admin_routes.py**: Routes που μπορεί να χρησιμοποιήσει μόνο ο admin
+- **supervisor_routes.py**: Routes για supervisors
+- **employee_routes.py**: Routes για employees
+
+Για τα **templates/**, τα χώρισα σε φακέλους:
+- **admin/**: Όλες οι σελίδες που βλέπει ο admin
+- **supervisor/**: Σελίδες για supervisors  
+- **employee/**: Σελίδες για employees
+
+Και μετά έχω μερικές κοινές σελίδες όπως το **login.html**, **profile.html**, κλπ που τις βλέπουν όλοι.
+
+Στο **static/** έχω τα CSS, JavaScript και εικόνες.
+
+### Οργάνωση κώδικα
+
+Χώρισα τη λειτουργικότητα σε διαφορετικά modules για καλύτερη οργάνωση:
 
 #### `main.py`
 Κύριο αρχείο εφαρμογής που περιέχει:
@@ -144,9 +129,11 @@ Business logic & data models:
 - `supervisor_routes.py`: Supervisor-specific functionality  
 - `employee_routes.py`: Employee-specific functionality
 
-## 🗄️ Βάση Δεδομένων
+## Βάση Δεδομένων
 
-### MongoDB Collections
+Για τη βάση δεδομένων επέλεξα MongoDB λόγω της ευελιξίας που παρέχει σε σχέση με τα παραδοσιακά σχεσιακά συστήματα. Ταυτόχρονα όμως διατήρησα μία δομή που θυμίζει σχεσιακό μοντέλο για ευκολότερη κατανόηση.
+
+### Collections που δημιούργησα
 
 #### 1. `users` Collection
 ```javascript
@@ -291,9 +278,9 @@ Business logic & data models:
 }
 ```
 
-### Database Indexing
+### Database Indexes για βελτίωση απόδοσης
 
-Για βελτίωση απόδοσης:
+Δημιούργησα κατάλληλα indexes για γρηγορότερες αναζητήσεις:
 ```javascript
 // Users collection
 db.users.createIndex({"username": 1}, {unique: true})
@@ -316,333 +303,274 @@ db.transactions.createIndex({"product_id": 1})
 db.transactions.createIndex({"timestamp": -1})
 ```
 
-## 🚀 Τρόπος Εκτέλεσης Συστήματος
+## Τρόπος Εκτέλεσης Συστήματος
 
-### Προαπαιτούμενα
+Για να τρέξει το σύστημα χρειάζεται να ακολουθήσετε τα παρακάτω βήματα. Επέλεξα το Docker για να κάνω εύκολη την εγκατάσταση και εκτέλεση.
 
-1. **Docker & Docker Compose**: Εγκατάσταση του Docker Desktop
-2. **Git**: Για clone του repository
-3. **Port Availability**: Ports 5000 και 27017 πρέπει να είναι διαθέσιμοι
+### Τι χρειάζεστε πρώτα
 
-### Βήματα Εκτέλεσης
+1. **Docker & Docker Compose**: Κατεβάστε το Docker Desktop από το official site
+2. **Git**: Για να κατεβάσετε τον κώδικα
+3. **Ελεύθερα ports**: Τα ports 5000 και 27017 πρέπει να είναι ελεύθερα
 
-#### 1. Clone του Repository
+### Βήματα για εκτέλεση
+
+#### 1. Κατέβασμα του κώδικα
 ```bash
 git clone https://github.com/savvaskassas/YpoxreotikiErgasiaSept25_-20067_KASSAS_SAVVAS.git
-cd YpoxreotikiErgasiaSept25_-20067_KASSAS_SAVVAS
+cd YpoxreotikiErgasiaSept25_-20067_KASSAS_SAVVAS/logistics-warehouse-system
 ```
 
-#### 2. Εκτέλεση με Docker Compose
+#### 2. Εκτέλεση με Docker
 ```bash
 docker compose up -d --build
 ```
 
-**Εξήγηση των παραμέτρων:**
-- `up`: Εκκίνηση των containers
-- `-d`: Detached mode (background execution)
-- `--build`: Rebuild των images αν χρειάζεται
+Αυτή η εντολή:
+- Χτίζει τα Docker images
+- Ξεκινά τα containers στο background
+- Δημιουργεί τη βάση δεδομένων αυτόματα
 
-#### 3. Επαλήθευση Εκτέλεσης
+#### 3. Έλεγχος ότι όλα δουλεύουν
 ```bash
-# Έλεγχος κατάστασης containers
 docker compose ps
-
-# Έλεγχος logs
-docker compose logs web
-docker compose logs mongo
 ```
 
-**Αναμενόμενη έξοδος:**
-```bash
-NAME                               COMMAND                  SERVICE   STATUS    PORTS
-logistics-warehouse-system-web-1   "python -m flask run…"   web       Up        0.0.0.0:5000->5000/tcp
-logistics-warehouse-system-mongo-1 "docker-entrypoint.s…"   mongo     Up        0.0.0.0:27017->27017/tcp
-```
-
-#### 4. Πρόσβαση στο Σύστημα
-- **URL**: http://localhost:5000
-- **Admin Credentials**: 
+#### 4. Χρήση του συστήματος
+- Ανοίξτε τον browser στο http://localhost:5000
+- Συνδεθείτε ως admin:
   - Username: `admin`
   - Password: `admin123`
 
-### Διαχείριση Συστήματος
+### Χρήσιμες εντολές
 
-#### Διακοπή Συστήματος
+#### Για να σταματήσετε το σύστημα
 ```bash
 docker compose down
 ```
 
-#### Επανεκκίνηση
+#### Για restart
 ```bash
 docker compose restart
 ```
 
-#### Καθαρισμός (Διαγραφή δεδομένων)
+#### Για να δείτε τα logs
 ```bash
-docker compose down -v
-docker system prune -f
+docker compose logs web
 ```
 
-#### Backup Δεδομένων
-```bash
-# Backup της data directory
-cp -r data/ backup-$(date +%Y%m%d)/
-```
+## Τρόπος Χρήσης Συστήματος
 
-### Troubleshooting
+Στην ενότητα αυτή παρουσιάζω πώς χρησιμοποιείται το σύστημα από κάθε τύπο χρήστη. Κάθε ένας από τους τρεις ρόλους (Admin, Supervisor, Employee) έχει διαφορετικές δυνατότητες.
 
-#### Port Conflicts
-```bash
-# Εύρεση διεργασιών που χρησιμοποιούν τα ports
-netstat -tulpn | grep :5000
-netstat -tulpn | grep :27017
+**Σημείωση**: Αντίστοιχα screenshots βρίσκονται στην επόμενη ενότητα.
 
-# Αλλαγή ports στο compose.yaml αν χρειάζεται
-```
+### 1. Σύνδεση στο Σύστημα
 
-#### Container Logs
-```bash
-# Λεπτομερή logs
-docker compose logs -f web
-docker compose logs -f mongo
-
-# Logs συγκεκριμένης περιόδου
-docker compose logs --since="1h" web
-```
-
-## 💻 Τρόπος Χρήσης Συστήματος
-
-### 1. 🔐 Σύνδεση στο Σύστημα
-
-#### Για Administrators
-1. Μεταβείτε στο http://localhost:5000
-2. Χρησιμοποιήστε τα διαπιστευτήρια:
+#### Διαχειριστές (Administrators)
+Για πρώτη φορά:
+1. Πηγαίνετε στο http://localhost:5000
+2. Χρησιμοποιήστε:
    - **Username**: `admin`
    - **Password**: `admin123`
 
-#### Για Supervisors & Employees
-1. Ο admin πρέπει πρώτα να δημιουργήσει τους λογαριασμούς
-2. Σύνδεση με unit_id, username, password
+#### Προϊστάμενοι και Υπάλληλοι
+Πρέπει πρώτα ο admin να δημιουργήσει τους λογαριασμούς τους. Μετά συνδέονται με:
+- Unit ID (π.χ. "001")
+- Username
+- Password
 
-**Παράδειγμα Σύνδεσης Supervisor:**
-```
-Unit ID: 001
-Username: supervisor1
-Password: [όπως ορίστηκε από admin]
-```
-
-### 2. 👑 Admin Λειτουργικότητες
+### 2. Λειτουργίες Διαχειριστή (Admin)
 
 #### Δημιουργία Αποθήκης
-1. **Navigation**: Admin Dashboard → Διαχείριση → Νέα Αποθήκη
-2. **Πληροφορίες**:
-   - Όνομα: "Αποθήκη Θεσσαλονίκης"
-   - Όγκος: 1500 (m³)
-3. **Αποτέλεσμα**: Auto-generated unit_id (π.χ. "002")
+1. Από το Admin Dashboard πατάτε "Διαχείριση" → "Νέα Αποθήκη"
+2. Συμπληρώνετε:
+   - Όνομα αποθήκης (π.χ. "Αποθήκη Θεσσαλονίκης")
+   - Συνολικό όγκος σε κυβικά μέτρα (π.χ. 1500)
+3. Το σύστημα δίνει αυτόματα ένα unit_id (π.χ. "002")
 
 #### Δημιουργία Προϊόντος
-1. **Navigation**: Admin Dashboard → Προϊόντα → Νέο Προϊόν
-2. **Παράδειγμα δεδομένων**:
-   ```
-   Όνομα: Smartphone Samsung Galaxy
-   Βάρος: 0.2 kg
-   Όγκος: 0.0001 m³
-   Κατηγορία: Ηλεκτρονικά
-   Τιμή Αγοράς: 400 €
-   Τιμή Πώλησης: 550 €
-   Κατασκευαστής: Samsung
-   Αρχική Ποσότητα: 50
-   ```
-3. **Αποτέλεσμα**: Το προϊόν προστίθεται σε όλες τις αποθήκες
+1. "Προϊόντα" → "Νέο Προϊόν"
+2. Συμπληρώνετε όλα τα στοιχεία όπως:
+   - Όνομα προϊόντος
+   - Βάρος και όγκος ανά τεμάχιο
+   - Κατηγορία
+   - Τιμές αγοράς και πώλησης
+   - Κατασκευαστής
+   - Αρχική ποσότητα για όλες τις αποθήκες
 
-#### Δημιουργία Supervisor
-1. **Navigation**: Admin Dashboard → Προϊστάμενοι → Νέος Προϊστάμενος
-2. **Πληροφορίες**:
-   ```
-   Όνομα: Ιωάννης
-   Επώνυμο: Παπαδόπουλος
-   Unit ID: 001
-   Password: supervisor123
-   ```
+#### Δημιουργία Προϊσταμένου
+1. "Προϊστάμενοι" → "Νέος Προϊστάμενος"
+2. Επιλέγετε σε ποια αποθήκη θα εργάζεται
+3. Συμπληρώνετε προσωπικά στοιχεία και κωδικό
 
-#### Στατιστικά Εταιρείας
-- **Συνολικά Κέρδη**: €15,750.50
-- **Χρήση Όγκου**: 45.2% (1,356 m³ από 3,000 m³)
-- **Πλήθος Εργαζομένων**: 25 (συμπεριλαμβανομένων supervisors)
+#### Προβολή Στατιστικών
+Στο dashboard βλέπετε:
+- Συνολικά κέρδη όλης της εταιρείας
+- Χρήση όγκου αποθηκών
+- Αριθμό εργαζομένων
+- Διαγράμματα κατανομής
 
-### 3. 👔 Supervisor Λειτουργικότητες
+### 3. Λειτουργίες Προϊσταμένου (Supervisor)
 
-#### Δημιουργία Employee
-1. **Login**: ως supervisor στην αποθήκη του
-2. **Navigation**: Supervisor Dashboard → Υπάλληλοι → Νέος Υπάλληλος
-3. **Πληροφορίες**:
-   ```
-   Όνομα: Μαρία
-   Επώνυμο: Γεωργίου
-   Password: employee123
-   ```
+#### Διαχείριση Υπαλλήλων
+1. "Υπάλληλοι" → "Νέος Υπάλληλος" για δημιουργία
+2. Μπορείτε να αλλάξετε κωδικούς υπαλλήλων
+3. Βλέπετε λίστα όλων των υπαλλήλων της αποθήκης σας
 
 #### Αγορά Προϊόντων
-1. **Navigation**: Προϊόντα → [Επιλογή Προϊόντος] → Αγορά
-2. **Παράδειγμα**:
-   ```
-   Προϊόν: P0001 (Laptop Dell)
-   Ποσότητα: 10 τεμάχια
-   Τιμή: 500 € ανά τεμάχιο
-   Σύνολο: 5,000 €
-   ```
-3. **Αποτέλεσμα**: Ενημέρωση product_quantity (+10)
+1. Πηγαίνετε στα "Προϊόντα"
+2. Επιλέγετε ένα προϊόν και πατάτε "Αγορά"
+3. Βάζετε την ποσότητα που θέλετε να αγοράσετε
+4. Το απόθεμα αυξάνεται αυτόματα
 
 #### Στατιστικά Αποθήκης
-- **Κέρδη Αποθήκης**: €3,250.00
-- **Χρήση Όγκου**: 67.8%
-- **Πλήθος Υπαλλήλων**: 8
-- **Διαγράμματα**: Pie chart κατανομής κερδών ανά κατηγορία
+Βλέπετε:
+- Κέρδη της αποθήκης σας
+- Πόσο όγκο χρησιμοποιείτε
+- Αριθμό υπαλλήλων
+- Διαγράμματα με ανάλυση κερδών
 
-### 4. 👨‍💼 Employee Λειτουργικότητες
+### 4. Λειτουργίες Υπαλλήλου (Employee)
 
-#### Προβολή Προϊόντων
-1. **Navigation**: Employee Dashboard → Προϊόντα
-2. **Αναζήτηση**:
-   ```
-   Αναζήτηση: "laptop"
-   Ταξινόμηση: Όνομα (Α-Ω)
-   Φίλτρο Ποσότητας: 1-100 τεμάχια
-   ```
+#### Προβολή και Αναζήτηση Προϊόντων
+1. Στο "Employee Dashboard" βλέπετε όλα τα προϊόντα της αποθήκης σας
+2. Μπορείτε να αναζητήσετε προϊόντα με:
+   - Όνομα προϊόντος
+   - Product ID
+   - Κατηγορία
+   - Εύρος ποσοτήτων
 
 #### Πώληση Προϊόντων
-1. **Navigation**: Προϊόντα → [Επιλογή Προϊόντος] → Πώληση
-2. **Παράδειγμα συναλλαγής**:
-   ```
-   Προϊόν: P0001 (Laptop Dell)
-   Διαθέσιμη Ποσότητα: 25 τεμάχια
-   Ποσότητα Πώλησης: 3 τεμάχια
-   Τιμή Πώλησης: 650 € ανά τεμάχιο
-   Συνολικό Ποσό: 1,950 €
-   Κέρδος: 3 × (650-500) = 450 €
-   ```
-3. **Αποτέλεσμα**: 
-   - product_quantity: 25 → 22
-   - product_unit_gain: +450 €
+1. Επιλέγετε ένα προϊόν
+2. Πατάτε "Πώληση"
+3. Βάζετε πόσα τεμάχια θέλετε να πουλήσετε
+4. Το σύστημα:
+   - Ελέγχει αν υπάρχει αρκετό απόθεμα
+   - Μειώνει την ποσότητα
+   - Υπολογίζει και προσθέτει το κέρδος
 
-#### Αναζήτηση Προϊόντων
-**Βασική Αναζήτηση:**
-```
-Κείμενο: "Samsung"
-Αποτελέσματα: Όλα τα προϊόντα που περιέχουν "Samsung"
-```
+#### Λεπτομέρειες Προϊόντων
+Για κάθε προϊόν μπορείτε να δείτε:
+- Όλες τις τεχνικές προδιαγραφές
+- Τρέχουσα ποσότητα
+- Τιμές
+- Πιθανό κέρδος αν πουληθούν όλα
 
-**Προχωρημένη Αναζήτηση:**
-```
-Product ID: P0001
-Ή
-Ποσότητα από: 10, έως: 50
-Ταξινόμηση: Ποσότητα (Φθίνουσα)
-```
-
-### 5. 📊 Παραδείγματα Αναφορών
-
-#### Admin Dashboard
-```
-┌─────────────────────────────────────┐
-│ Συνολικά Στατιστικά                 │
-├─────────────────────────────────────┤
-│ Πραγματοποιηθέν Κέρδος: €15,750.50  │
-│ Δυνητικό Κέρδος: €23,890.75         │
-│ Χρήση Όγκου: 45.2%                 │
-│ Συνολικοί Εργαζόμενοι: 25           │
-└─────────────────────────────────────┘
-
-Πρόσφατες Αποθήκες:
-001 | Κεντρική Αθήνα    | 1000.0 m³ | €3,250.00
-002 | Θεσσαλονίκη       | 1500.0 m³ | €5,125.25
-003 | Πάτρα             | 500.0 m³  | €1,875.75
-```
-
-#### Supervisor Statistics
-```
-┌─────────────────────────────────────┐
-│ Στατιστικά Αποθήκης 001             │
-├─────────────────────────────────────┤
-│ Πραγματοποιηθέν Κέρδος: €3,250.00   │
-│ Επένδυση Αποθέματος: €12,500.00     │
-│ Πιθανά Έσοδα: €16,250.00           │
-│ Δυνητικό Κέρδος: €3,750.00         │
-│ Χρήση Όγκου: 67.8% (678/1000 m³)   │
-│ Υπάλληλοι: 8                       │
-└─────────────────────────────────────┘
-```
-
-### 6. 🛠️ Διαχείριση Προφίλ
+### 5. Γενικές Λειτουργίες
 
 #### Αλλαγή Κωδικού
-1. **Navigation**: [Όνομα Χρήστη] → Αλλαγή Κωδικού
-2. **Διαδικασία**:
-   ```
-   Τρέχων Κωδικός: [παλιός κωδικός]
-   Νέος Κωδικός: [νέος κωδικός]
-   Επιβεβαίωση: [νέος κωδικός]
-   ```
-3. **Αποτέλεσμα**: Αυτόματη αποσύνδεση και redirect στο login
+1. Πατάτε στο όνομά σας πάνω δεξιά
+2. "Αλλαγή Κωδικού"
+3. Βάζετε τον παλιό και δύο φορές τον νέο κωδικό
 
 #### Ενημέρωση Προφίλ
-1. **Navigation**: [Όνομα Χρήστη] → Προφίλ
-2. **Επεξεργάσιμα πεδία**:
-   ```
-   Τηλέφωνο: +30 210 1234567
-   Email: user@company.com
-   Διεύθυνση: Αθήνα, Ελλάδα
-   ```
+Μπορείτε να αλλάξετε:
+- Τηλέφωνο
+- Email
+- Διεύθυνση
 
-### 7. 🔍 Error Handling & Validation
+### 6. Παραδείγματα χρήσης
 
-#### Κοινά Μηνύματα Σφάλματος
-```
-❌ "Δεν έχετε δικαίωμα πρόσβασης!"
-❌ "Μη έγκυρα στοιχεία σύνδεσης!"
-❌ "Δεν υπάρχει αρκετό απόθεμα!"
-❌ "Το όνομα χρήστη υπάρχει ήδη!"
-✅ "Η λειτουργία ολοκληρώθηκε επιτυχώς!"
-```
+#### Τυπική ημέρα ενός Supervisor:
+1. Συνδέεται στο σύστημα
+2. Ελέγχει τα στατιστικά της αποθήκης του
+3. Βλέπει ότι κάποια προϊόντα είναι λίγα
+4. Κάνει παραγγελία (αγορά) για να συμπληρώσει το απόθεμα
+5. Ελέγχει αν χρειάζεται να δημιουργήσει νέο λογαριασμό υπαλλήλου
 
-#### Validation Rules
-- **Passwords**: Minimum 3 χαρακτήρες
-- **Quantities**: Θετικοί αριθμοί
-- **Prices**: Θετικοί αριθμοί με 2 δεκαδικά
-- **Volume**: Θετικός αριθμός
-- **Names**: Μη κενά strings
+#### Τυπική ημέρα ενός Employee:
+1. Συνδέεται στο σύστημα
+2. Βλέπει τα διαθέσιμα προϊόντα
+3. Όταν έρχεται πελάτης, αναζητά το προϊόν που θέλει
+4. Κάνει την πώληση μέσω του συστήματος
+5. Το απόθεμα ενημερώνεται αυτόματα
 
-## 📚 Αναφορές
+## Screenshots του Συστήματος
 
-### Επίσημη Τεκμηρίωση
-1. **Flask Documentation**: https://flask.palletsprojects.com/
-2. **MongoDB Manual**: https://docs.mongodb.com/
-3. **Docker Documentation**: https://docs.docker.com/
-4. **Jinja2 Documentation**: https://jinja.palletsprojects.com/
-5. **Bootstrap Documentation**: https://getbootstrap.com/docs/
+Στα screenshots που ακολουθούν μπορείτε να δείτε την πραγματική εμφάνιση και χρήση του συστήματος:
 
-### Python Libraries
-1. **PyMongo**: https://pymongo.readthedocs.io/
-2. **bcrypt**: https://pypi.org/project/bcrypt/
-3. **python-dotenv**: https://pypi.org/project/python-dotenv/
+### Login Screen
+![Login Screen](screenshots/login.png)
+*Η σελίδα σύνδεσης όπου οι χρήστες εισάγουν τα στοιχεία τους*
 
-### Frontend Libraries
-1. **Chart.js**: https://www.chartjs.org/
-2. **Font Awesome**: https://fontawesome.com/
+### Admin Dashboard
+![Admin Dashboard](screenshots/admin_dashboard.png)  
+*Το κεντρικό dashboard του διαχειριστή με στατιστικά και επιλογές διαχείρισης*
 
-### Tutorials & Resources
+### Admin - Δημιουργία Αποθήκης
+![Create Unit](screenshots/admin_create_unit.png)
+*Η φόρμα δημιουργίας νέας αποθήκης*
+
+### Admin - Διαχείριση Προϊόντων
+![Product Management](screenshots/admin_products.png)
+*Λίστα όλων των προϊόντων με επιλογές επεξεργασίας*
+
+### Admin - Δημιουργία Προϊσταμένου
+![Create Supervisor](screenshots/admin_create_supervisor.png)
+*Φόρμα για δημιουργία νέου λογαριασμού προϊσταμένου*
+
+### Supervisor Dashboard  
+![Supervisor Dashboard](screenshots/supervisor_dashboard.png)
+*Το dashboard του προϊσταμένου με στατιστικά της αποθήκης του*
+
+### Supervisor - Αγορά Προϊόντων
+![Purchase Products](screenshots/supervisor_purchase.png)
+*Σελίδα αγοράς προϊόντων για συμπλήρωση αποθέματος*
+
+### Supervisor - Διαχείριση Υπαλλήλων
+![Manage Employees](screenshots/supervisor_employees.png)
+*Λίστα υπαλλήλων της αποθήκης με επιλογές διαχείρισης*
+
+### Employee Dashboard
+![Employee Dashboard](screenshots/employee_dashboard.png)
+*Το κεντρικό dashboard του υπαλλήλου με διαθέσιμα προϊόντα*
+
+### Employee - Πώληση Προϊόντος
+![Sell Product](screenshots/employee_sell.png)
+*Φόρμα πώλησης προϊόντος με αυτόματους υπολογισμούς*
+
+### Employee - Αναζήτηση Προϊόντων
+![Search Products](screenshots/employee_search.png)
+*Σελίδα αναζήτησης με φίλτρα και ταξινόμηση*
+
+### Στατιστικά και Διαγράμματα
+![Statistics](screenshots/statistics_charts.png)
+*Σελίδα στατιστικών με διαγράμματα απόδοσης*
+
+### Mobile Responsive Design
+![Mobile View](screenshots/mobile_responsive.png)
+*Το σύστημα σε mobile συσκευή - responsive design*
+
+**Σημείωση**: Τα screenshots δείχνουν την πραγματική λειτουργία του συστήματος με δεδομένα δοκιμής. Όλες οι λειτουργίες που περιγράφονται στο documentation είναι πλήρως υλοποιημένες και λειτουργικές.
+
+## Αναφορές
+
+Κατά την ανάπτυξη της εργασίας χρησιμοποίησα τις παρακάτω πηγές για να μάθω τις τεχνολογίες και να λύσω προβλήματα:
+
+### Επίσημη τεκμηρίωση τεχνολογιών
+1. **Flask Documentation**: https://flask.palletsprojects.com/ - Για το web framework
+2. **MongoDB Manual**: https://docs.mongodb.com/ - Για τη βάση δεδομένων  
+3. **Docker Documentation**: https://docs.docker.com/ - Για containerization
+4. **Bootstrap Documentation**: https://getbootstrap.com/docs/ - Για το frontend
+
+### Python libraries που χρησιμοποίησα
+1. **PyMongo**: https://pymongo.readthedocs.io/ - MongoDB driver
+2. **bcrypt**: https://pypi.org/project/bcrypt/ - Password hashing
+3. **python-dotenv**: https://pypi.org/project/python-dotenv/ - Environment variables
+
+### Frontend βιβλιοθήκες
+1. **Chart.js**: https://www.chartjs.org/ - Για τα διαγράμματα
+2. **Font Awesome**: https://fontawesome.com/ - Για τα icons
+
+### Χρήσιμα tutorials
 1. **Flask Mega-Tutorial**: https://blog.miguelgrinberg.com/post/the-flask-mega-tutorial-part-i-hello-world
 2. **MongoDB University**: https://university.mongodb.com/
 3. **Docker Getting Started**: https://docs.docker.com/get-started/
 
-### Best Practices References
-1. **Flask Best Practices**: https://flask.palletsprojects.com/en/2.3.x/patterns/
-2. **MongoDB Schema Design**: https://docs.mongodb.com/manual/data-modeling/
-3. **Security Best Practices**: https://owasp.org/
-
 ---
 
-**Developed by**: Savvas Kassas  
-**Student ID**: 20067  
-**Course**: Πληροφοριακά Συστήματα  
-**Date**: September 2025
+**Ανέπτυξε**: Σάββας Κάσσας  
+**ΑΜ**: 20067  
+**Μάθημα**: Πληροφοριακά Συστήματα  
+**Ημερομηνία**: Σεπτέμβριος 2025
