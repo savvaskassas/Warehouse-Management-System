@@ -107,10 +107,6 @@
                             <i class="fas fa-boxes"></i> Προϊόντα
                         </a>
                         <ul class="dropdown-menu">
-                            {% if session.role == 'admin' %}
-                            <li><a class="dropdown-item" href="{{ url_for('admin.view_products') }}">Διαχείριση Προϊόντων</a></li>
-                            <li><hr class="dropdown-divider"></li>
-                            {% endif %}
                             <li><a class="dropdown-item" href="{{ url_for('employee.view_products') }}">Προβολή Αποθήκης</a></li>
                             <li><a class="dropdown-item" href="{{ url_for('employee.quick_search') }}">Αναζήτηση</a></li>
                         </ul>
