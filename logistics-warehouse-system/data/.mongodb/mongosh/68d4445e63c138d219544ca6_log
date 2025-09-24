@@ -12,3 +12,4 @@
 {"t":{"$date":"2025-09-24T19:19:58.602Z"},"s":"I","c":"MONGOSH","id":1000000002,"ctx":"repl","msg":"Started REPL","attr":{"version":"2.3.8"}}
 {"t":{"$date":"2025-09-24T19:19:58.627Z"},"s":"I","c":"MONGOSH-SNIPPETS","id":1000000027,"ctx":"snippets","msg":"Fetching snippet index done"}
 {"t":{"$date":"2025-09-24T19:19:58.631Z"},"s":"I","c":"MONGOSH-SNIPPETS","id":1000000024,"ctx":"snippets","msg":"Fetching snippet index","attr":{"refreshMode":"force-refresh"}}
+{"t":{"$date":"2025-09-24T19:20:01.692Z"},"s":"I","c":"MONGOSH-SNIPPETS","id":1000000027,"ctx":"snippets","msg":"Fetching snippet index done"}
