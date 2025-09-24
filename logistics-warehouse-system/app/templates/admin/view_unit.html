@@ -7,9 +7,6 @@
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h1><i class="fas fa-warehouse"></i> Προβολή Αποθήκης: {{ unit.unit_name }}</h1>
         <div>
-            <a href="{{ url_for('admin.access_unit_as_supervisor', unit_id=unit.unit_id) }}" class="btn btn-success">
-                <i class="fas fa-user-tie"></i> Πρόσβαση ως Supervisor
-            </a>
             <a href="{{ url_for('admin.edit_unit', unit_id=unit.unit_id) }}" class="btn btn-warning">
                 <i class="fas fa-edit"></i> Επεξεργασία
             </a>
